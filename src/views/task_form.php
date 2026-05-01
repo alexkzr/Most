@@ -1,11 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Most — Новая задача</title>
-    <link rel="stylesheet" href="/public/css/style.css">
-</head>
+<?php $pageTitle = 'Форма Таски'; require __DIR__ . '/head.php'; ?>
 <body>
 
 <header class="header">

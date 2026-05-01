@@ -1,0 +1,94 @@
+/* ===========================
+   ТЁМНЫЕ ТЕМЫ
+   =========================== */
+
+[data-theme="dark-default"] {
+    --bg: #0f1117;
+    --bg-secondary: #1a1d27;
+    --bg-card: #1e2130;
+    --border: #2e3147;
+    --text: #e8eaf0;
+    --text-muted: #6b7280;
+    --accent: #4f6ef7;
+    --accent-hover: #3d5ce8;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --success: #22c55e;
+}
+
+[data-theme="dark-blue"] {
+    --bg: #060d1a;
+    --bg-secondary: #0d1b2e;
+    --bg-card: #112240;
+    --border: #1e3a5f;
+    --text: #ccd6f6;
+    --text-muted: #8892b0;
+    --accent: #64ffda;
+    --accent-hover: #43e8c0;
+    --danger: #ff6b6b;
+    --warning: #ffd93d;
+    --success: #6bcb77;
+}
+
+[data-theme="dark-green"] {
+    --bg: #0a0f0a;
+    --bg-secondary: #111a11;
+    --bg-card: #162016;
+    --border: #2a3d2a;
+    --text: #d4edda;
+    --text-muted: #6b8f6b;
+    --accent: #69db7c;
+    --accent-hover: #51c264;
+    --danger: #ff6b6b;
+    --warning: #ffd43b;
+    --success: #69db7c;
+}
+
+/* ===========================
+   СВЕТЛЫЕ ТЕМЫ
+   =========================== */
+
+[data-theme="light-default"] {
+    --bg: #f5f6fa;
+    --bg-secondary: #eceef5;
+    --bg-card: #ffffff;
+    --border: #dde1f0;
+    --text: #1a1d2e;
+    --text-muted: #6b7280;
+    --accent: #4f6ef7;
+    --accent-hover: #3d5ce8;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --success: #22c55e;
+    --shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+[data-theme="light-warm"] {
+    --bg: #faf8f5;
+    --bg-secondary: #f2ede6;
+    --bg-card: #ffffff;
+    --border: #e8e0d5;
+    --text: #2d2416;
+    --text-muted: #8a7968;
+    --accent: #c2762a;
+    --accent-hover: #a8611a;
+    --danger: #dc2626;
+    --warning: #d97706;
+    --success: #16a34a;
+    --shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+
+[data-theme="light-purple"] {
+    --bg: #f8f5ff;
+    --bg-secondary: #f0eaff;
+    --bg-card: #ffffff;
+    --border: #e2d9f3;
+    --text: #1e1433;
+    --text-muted: #7c6f9a;
+    --accent: #7c3aed;
+    --accent-hover: #6d28d9;
+    --danger: #dc2626;
+    --warning: #d97706;
+    --success: #16a34a;
+    --shadow: 0 4px 24px rgba(124,58,237,0.08);
+}

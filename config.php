@@ -37,3 +37,11 @@ function db(): PDO {
     }
     return $pdo;
 }
+
+function getUserTheme(): string {
+    if (!isset($_SESSION['user_id'])) return 'dark-default';
+    $stmt = db()->prepare('SELECT theme FROM users WHERE id = ?');
+    $stmt->execute([$_SESSION['user_id']]);
+    $user = $stmt->fetch();
+    return $user['theme'] ?? 'dark-default';
+}

@@ -22,12 +22,7 @@ $activeTab = $_GET['tab'] ?? 'comments';
 ?>
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Most — <?= htmlspecialchars($task['title']) ?></title>
-    <link rel="stylesheet" href="/public/css/style.css">
-</head>
+<?php $pageTitle = 'Вид таски'; require __DIR__ . '/head.php'; ?>
 <body>
 
 <header class="header">

@@ -68,6 +68,18 @@ if ($method === 'POST' && $_POST['form'] === 'delete_tag') {
     exit;
 }
 
+// Сменить тему
+if ($method === 'POST' && $_POST['form'] === 'set_theme') {
+    $allowed = ['dark-default', 'dark-blue', 'dark-green', 'light-default', 'light-warm', 'light-purple'];
+    $theme   = $_POST['theme'] ?? 'dark-default';
+    if (in_array($theme, $allowed)) {
+        db()->prepare('UPDATE users SET theme = ? WHERE id = ?')->execute([$theme, $_SESSION['user_id']]);
+        $_SESSION['theme'] = $theme;
+    }
+    header('Location: /settings?success=theme');
+    exit;
+}
+
 // Данные для отображения
 $projects         = db()->query('SELECT * FROM projects ORDER BY is_archived ASC, name ASC')->fetchAll();
 $tags             = db()->query('SELECT * FROM tags ORDER BY name')->fetchAll();

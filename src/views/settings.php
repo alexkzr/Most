@@ -1,11 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Most — Настройки</title>
-    <link rel="stylesheet" href="/public/css/style.css">
-</head>
+<?php $pageTitle = 'Настройки'; require __DIR__ . '/head.php'; ?>
 <body>
 
 <header class="header">
@@ -76,7 +71,44 @@
                 </div>
             <?php endforeach; ?>
         </div>
+        <!-- Тема -->
+        <div class="settings-section">
+            <h2 class="settings-title">Оформление</h2>
+            <?php $currentTheme = getUserTheme(); ?>
 
+            <form method="POST" action="/settings">
+                <input type="hidden" name="form" value="set_theme">
+                <input type="hidden" name="theme" id="theme-input" value="<?= $currentTheme ?>">
+
+                <div class="themes-grid">
+                    <?php
+                    $themes = [
+                        'dark-default'  => ['name' => 'Тёмная',        'bg' => '#0f1117', 'accent' => '#4f6ef7'],
+                        'dark-blue'     => ['name' => 'Ночной океан',   'bg' => '#060d1a', 'accent' => '#64ffda'],
+                        'dark-green'    => ['name' => 'Матрица',        'bg' => '#0a0f0a', 'accent' => '#69db7c'],
+                        'light-default' => ['name' => 'Светлая',        'bg' => '#f5f6fa', 'accent' => '#4f6ef7'],
+                        'light-warm'    => ['name' => 'Тёплая',         'bg' => '#faf8f5', 'accent' => '#c2762a'],
+                        'light-purple'  => ['name' => 'Лавандовая',     'bg' => '#f8f5ff', 'accent' => '#7c3aed'],
+                    ];
+                    foreach ($themes as $key => $t): ?>
+                        <div class="theme-card <?= $currentTheme === $key ? 'active' : '' ?>"
+                            onclick="selectTheme('<?= $key ?>')">
+                            <div class="theme-preview" style="background:<?= $t['bg'] ?>">
+                                <div class="theme-preview-bar" style="background:<?= $t['accent'] ?>"></div>
+                                <div class="theme-preview-lines">
+                                    <div style="background:<?= $t['accent'] ?>33;height:6px;border-radius:3px;margin-bottom:4px"></div>
+                                    <div style="background:<?= $t['accent'] ?>22;height:6px;border-radius:3px;width:70%"></div>
+                                </div>
+                            </div>
+                            <div class="theme-name"><?= $t['name'] ?></div>
+                            <div class="theme-check">✓</div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="margin-top:16px">Применить тему</button>
+            </form>
+        </div>                                      
         <!-- Добавить проект -->
         <form method="POST" action="/settings" style="display:flex;gap:8px;margin-top:16px">
             <input type="hidden" name="form" value="add_project">
@@ -122,6 +154,12 @@
     </div>
 
 </div>
-
+<script>
+function selectTheme(key) {
+    document.getElementById('theme-input').value = key;
+    document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));
+    document.querySelector('.theme-card[onclick="selectTheme(\'' + key + '\')"]').classList.add('active');
+}
+</script>
 </body>
 </html>

@@ -1,11 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Most — Вход</title>
-    <link rel="stylesheet" href="/public/css/style.css">
-</head>
+<?php $pageTitle = 'Логин'; require __DIR__ . '/head.php'; ?>
 <body class="login-page">
 
 <div class="login-box">
