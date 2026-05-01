@@ -729,3 +729,122 @@ a {
     color: var(--text-muted);
     font-size: 13px;
 }
+
+/* ===========================
+   Архив
+   =========================== */
+
+.archive-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.archive-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    transition: border-color 0.2s;
+    color: var(--text);
+}
+
+.archive-item:hover {
+    border-color: var(--accent);
+}
+
+.archive-item-title {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.archive-item-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 4px;
+}
+
+.archive-item-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.archive-item-date {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* ===========================
+   Настройки
+   =========================== */
+
+.settings-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.settings-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.settings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.settings-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.settings-item:last-child {
+    border-bottom: none;
+}
+
+.settings-item-name {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.settings-item-name.archived {
+    color: var(--text-muted);
+    text-decoration: line-through;
+}
+
+.settings-item-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.btn-sm {
+    padding: 5px 12px;
+    font-size: 12px;
+}
+
+.tag-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
