@@ -358,3 +358,32 @@ a {
 .card-deadline.overdue {
     color: var(--danger);
 }
+
+/* ===========================
+   Переключатель проектов
+   =========================== */
+
+.project-switcher {
+    display: flex;
+    gap: 4px;
+}
+
+.project-tab {
+    padding: 5px 14px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    color: var(--text-muted);
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.project-tab:hover {
+    color: var(--text);
+    background: var(--bg-secondary);
+}
+
+.project-tab.active {
+    color: var(--text);
+    background: var(--bg-secondary);
+    border-color: var(--border);
+}
