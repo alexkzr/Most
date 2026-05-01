@@ -1,0 +1,24 @@
+# Окружение и конфиг
+.env
+config.local.php
+
+# Зависимости
+/vendor/
+
+# Логи
+*.log
+/logs/
+
+# Системное
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# PHP
+*.cache
+/cache/
