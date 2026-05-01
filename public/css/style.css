@@ -848,3 +848,24 @@ a {
     display: inline-block;
     flex-shrink: 0;
 }
+
+/* ===========================
+   Drag and drop
+   =========================== */
+
+.card-ghost {
+    opacity: 0.4;
+    background: var(--bg-secondary);
+    border: 1px dashed var(--accent);
+}
+
+.card-drag {
+    opacity: 0.9;
+    transform: rotate(1deg);
+    box-shadow: var(--shadow);
+}
+
+.column-body {
+    min-height: 80px;
+}
+

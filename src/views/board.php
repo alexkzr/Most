@@ -66,8 +66,9 @@ $priorityLabels = [
             </div>
             <div class="column-body" id="col-<?= $status ?>">
                 <?php foreach ($column['tasks'] as $task): ?>
-                    <div class="card <?= $task['status'] === 'pending_archive' ? 'pending-archive' : '' ?>"
-                         onclick="window.location='/tasks/<?= $task['id'] ?>'">
+                   <div class="card <?= $task['status'] === 'pending_archive' ? 'pending-archive' : '' ?>"
+                        data-task-id="<?= $task['id'] ?>"
+                        onclick="window.location='/tasks/<?= $task['id'] ?>'">
 
                         <div class="card-title"><?= htmlspecialchars($task['title']) ?></div>
 
@@ -110,6 +111,44 @@ $priorityLabels = [
         </div>
     <?php endforeach; ?>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+<script>
+const columns = document.querySelectorAll('.column-body');
 
+columns.forEach(col => {
+    Sortable.create(col, {
+        group: 'tasks',
+        animation: 150,
+        ghostClass: 'card-ghost',
+        dragClass: 'card-drag',
+        onEnd: function(evt) {
+            const taskId   = evt.item.dataset.taskId;
+            const newStatus = evt.to.closest('.column').dataset.status;
+
+            // Не даём перетаскивать в pending_archive руками
+            if (newStatus === 'pending_archive') {
+                evt.from.insertBefore(evt.item, evt.from.children[evt.oldIndex]);
+                return;
+            }
+
+            fetch('/tasks/' + taskId + '/move', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'status=' + encodeURIComponent(newStatus)
+            }).then(r => {
+                if (!r.ok) {
+                    // Откатываем если ошибка
+                    evt.from.insertBefore(evt.item, evt.from.children[evt.oldIndex]);
+                }
+                // Обновляем счётчики колонок
+                document.querySelectorAll('.column').forEach(c => {
+                    const count = c.querySelector('.column-body').children.length;
+                    c.querySelector('.column-count').textContent = count;
+                });
+            });
+        }
+    });
+});
+</script>
 </body>
 </html>
