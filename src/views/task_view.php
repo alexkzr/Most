@@ -341,6 +341,12 @@ document.querySelectorAll('.snippet-header').forEach(h => {
     });
 });
 </script>
-
+<script>
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        window.location.href = '/';
+    }
+});
+</script>
 </body>
 </html>
