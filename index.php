@@ -35,7 +35,8 @@ match(true) {
 
     // Настройки
     $uri === '/settings'                    => require __DIR__ . '/src/controllers/SettingsController.php',
-
+    // API
+    str_starts_with($uri, '/api')  => require __DIR__ . '/src/controllers/ApiController.php',
     // 404
     default => (function() {
         http_response_code(404);

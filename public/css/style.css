@@ -938,3 +938,52 @@ a {
     display: block;
 }
 
+/* ===========================
+   Quill редактор
+   =========================== */
+
+.ql-toolbar {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border) !important;
+    border-radius: var(--radius) var(--radius) 0 0 !important;
+}
+
+.ql-container {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border) !important;
+    border-radius: 0 0 var(--radius) var(--radius) !important;
+    font-size: 14px !important;
+    color: var(--text) !important;
+}
+
+.ql-editor {
+    min-height: 200px;
+    color: var(--text) !important;
+}
+
+.ql-editor.ql-blank::before {
+    color: var(--text-muted) !important;
+}
+
+.ql-stroke {
+    stroke: var(--text-muted) !important;
+}
+
+.ql-fill {
+    fill: var(--text-muted) !important;
+}
+
+.ql-picker-label {
+    color: var(--text-muted) !important;
+}
+
+.ql-picker-options {
+    background: var(--bg-card) !important;
+    border-color: var(--border) !important;
+}
+
+.ql-picker-item:hover,
+.ql-picker-label:hover {
+    color: var(--text) !important;
+}
+

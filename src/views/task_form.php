@@ -28,10 +28,15 @@
 
             <!-- Название -->
             <div class="form-group">
-                <label for="title">Название <span class="required">*</span></label>
-                <input type="text" id="title" name="title"
-                       value="<?= htmlspecialchars($_POST['title'] ?? '') ?>"
-                       placeholder="Кратко опишите задачу" autofocus>
+                <label for="description">Описание</label>
+                <div style="position:relative">
+                    <button type="button" id="ai-format-btn" class="btn btn-ghost btn-sm"
+                            style="position:absolute;top:-34px;right:0;z-index:10;display:flex;align-items:center;gap:6px">
+                        <span id="ai-btn-text">✨ Отформатировать через ИИ</span>
+                    </button>
+                    <div id="description-editor" style="min-height:200px"></div>
+                    <textarea id="description" name="description" style="display:none"><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
+                </div>
             </div>
 
             <!-- Описание -->
@@ -135,6 +140,67 @@
         </div>
     </form>
 </div>
+<script>
+// Инициализация Quill
+const quill = new Quill('#description-editor', {
+    theme: 'snow',
+    placeholder: 'Подробности, требования, ссылки...',
+    modules: {
+        toolbar: [
+            [{ header: [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            ['code-block', 'blockquote'],
+            [{ table: true }],
+            ['clean']
+        ]
+    }
+});
 
+// Если есть сохранённое значение — загружаем
+const savedContent = document.getElementById('description').value;
+if (savedContent) {
+    quill.root.innerHTML = savedContent;
+}
+
+// Перед сабмитом — копируем HTML из Quill в textarea
+document.querySelector('form').addEventListener('submit', function() {
+    document.getElementById('description').value = quill.root.innerHTML;
+});
+
+// ИИ форматирование
+document.getElementById('ai-format-btn').addEventListener('click', async function() {
+    const text = quill.getText().trim();
+    if (!text) {
+        alert('Сначала введите текст');
+        return;
+    }
+
+    const btn     = this;
+    const btnText = document.getElementById('ai-btn-text');
+    btn.disabled  = true;
+    btnText.textContent = '⏳ Форматирую...';
+
+    try {
+        const res = await fetch('/api/format', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: quill.root.innerHTML })
+        });
+
+        const data = await res.json();
+        if (data.html) {
+            quill.root.innerHTML = data.html;
+        } else {
+            alert('Ошибка форматирования');
+        }
+    } catch (e) {
+        alert('Ошибка соединения');
+    } finally {
+        btn.disabled = false;
+        btnText.textContent = '✨ Отформатировать через ИИ';
+    }
+});
+</script>
 </body>
 </html>
