@@ -17,7 +17,7 @@ if ($method !== 'POST' || !isset($_SESSION['user_id'])) {
 // /api/format
 if ($uri === '/api/format') {
     $body = json_decode(file_get_contents('php://input'), true);
-    $text = strip_tags($body['text'] ?? '');
+    $text = $body['text'] ?? '';
 
     if (!$text) {
         echo json_encode(['error' => 'Empty text']);
