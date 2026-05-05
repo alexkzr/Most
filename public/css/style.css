@@ -987,3 +987,124 @@ a {
     color: var(--text) !important;
 }
 
+/* ===========================
+   Красивое описание задачи
+   =========================== */
+
+.desc-preview h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 24px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--accent);
+}
+
+.desc-preview h2:first-child {
+    margin-top: 0;
+}
+
+.desc-preview h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 16px 0 8px;
+    padding-left: 10px;
+    border-left: 3px solid var(--accent);
+}
+
+.desc-preview p {
+    margin-bottom: 10px;
+    line-height: 1.7;
+    color: var(--text);
+}
+
+.desc-preview ul,
+.desc-preview ol {
+    padding-left: 20px;
+    margin: 8px 0 12px;
+}
+
+.desc-preview li {
+    margin-bottom: 6px;
+    line-height: 1.6;
+}
+
+.desc-preview blockquote {
+    background: var(--bg-secondary);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 10px 16px;
+    margin: 12px 0;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.desc-preview code {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--accent);
+}
+
+.desc-preview pre {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    overflow-x: auto;
+    font-size: 12px;
+    margin: 10px 0;
+    font-family: 'Courier New', monospace;
+}
+
+.desc-preview table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 13px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.desc-preview thead tr {
+    background: var(--accent);
+}
+
+.desc-preview thead th {
+    color: #fff;
+    font-weight: 600;
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.desc-preview tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+}
+
+.desc-preview tbody tr:last-child {
+    border-bottom: none;
+}
+
+.desc-preview tbody tr:hover {
+    background: var(--bg-secondary);
+}
+
+.desc-preview tbody td {
+    padding: 10px 14px;
+    vertical-align: top;
+    line-height: 1.5;
+}
+
+.desc-preview tbody tr:nth-child(even) {
+    background: rgba(255,255,255,0.02);
+}
+
