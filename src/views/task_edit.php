@@ -30,15 +30,33 @@
                        value="<?= htmlspecialchars($_POST['title'] ?? $task['title']) ?>" autofocus>
             </div>
 
+            <!-- Описание -->
             <div class="form-group">
                 <label>Описание</label>
-                <div style="position:relative">
-                    <button type="button" id="ai-format-btn" class="btn btn-ghost btn-sm"
-                            style="position:absolute;top:-34px;right:0;z-index:10">
-                        <span id="ai-btn-text">✨ Отформатировать через ИИ</span>
-                    </button>
-                    <div id="description-editor" style="min-height:200px"></div>
-                    <textarea id="description" name="description" style="display:none"></textarea>
+                <div class="desc-editor">
+
+                    <!-- Режим ввода -->
+                    <div id="desc-input-mode">
+                        <textarea id="desc-textarea" rows="10"
+                                  placeholder="Вставьте текст или HTML из Битрикса..."></textarea>
+                        <div class="desc-actions">
+                            <button type="button" id="ai-format-btn" class="btn btn-ghost btn-sm">
+                                <span id="ai-btn-text">✨ Отформатировать через ИИ</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Режим предпросмотра -->
+                    <div id="desc-preview-mode" style="display:none">
+                        <div id="desc-preview" class="desc-preview"></div>
+                        <div class="desc-actions">
+                            <button type="button" id="desc-edit-btn" class="btn btn-ghost btn-sm">✏️ Редактировать снова</button>
+                        </div>
+                    </div>
+
+                    <!-- Скрытый input — уходит в БД -->
+                    <input type="hidden" name="description" id="desc-hidden"
+                           value="<?= htmlspecialchars($task['description'] ?? '') ?>">
                 </div>
             </div>
 
@@ -128,50 +146,65 @@
 </div>
 
 <script>
-const quill = new Quill('#description-editor', {
-    theme: 'snow',
-    placeholder: 'Подробности, требования, ссылки...',
-    modules: {
-        toolbar: [
-            [{ header: [1, 2, 3, false] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ list: 'ordered' }, { list: 'bullet' }],
-            ['code-block', 'blockquote'],
-            ['clean']
-        ]
-    }
+const textarea    = document.getElementById('desc-textarea');
+const inputMode   = document.getElementById('desc-input-mode');
+const previewMode = document.getElementById('desc-preview-mode');
+const preview     = document.getElementById('desc-preview');
+const hiddenInput = document.getElementById('desc-hidden');
+
+// Если есть сохранённое описание — показываем предпросмотр
+const existing = hiddenInput.value.trim();
+if (existing) {
+    preview.innerHTML         = existing;
+    inputMode.style.display   = 'none';
+    previewMode.style.display = 'block';
+}
+
+// Кнопка "Редактировать снова"
+document.getElementById('desc-edit-btn').addEventListener('click', function() {
+    previewMode.style.display = 'none';
+    inputMode.style.display   = 'block';
+    textarea.value = hiddenInput.value;
 });
 
-// Загружаем существующее описание
-quill.root.innerHTML = <?= json_encode($task['description'] ?? '') ?>;
-
-document.querySelector('form').addEventListener('submit', function() {
-    document.getElementById('description').value = quill.root.innerHTML;
-});
-
+// ИИ форматирование
 document.getElementById('ai-format-btn').addEventListener('click', async function() {
-    const text = quill.getText().trim();
+    const text = textarea.value.trim();
     if (!text) { alert('Сначала введите текст'); return; }
 
-    const btn = this;
+    const btn     = this;
     const btnText = document.getElementById('ai-btn-text');
-    btn.disabled = true;
+    btn.disabled  = true;
     btnText.textContent = '⏳ Форматирую...';
 
     try {
         const res  = await fetch('/api/format', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: quill.root.innerHTML })
+            body: JSON.stringify({ text: text })
         });
         const data = await res.json();
-        if (data.html) quill.root.innerHTML = data.html;
-        else alert('Ошибка форматирования');
+
+        if (data.html) {
+            hiddenInput.value         = data.html;
+            preview.innerHTML         = data.html;
+            inputMode.style.display   = 'none';
+            previewMode.style.display = 'block';
+        } else {
+            alert('Ошибка форматирования');
+        }
     } catch(e) {
         alert('Ошибка соединения');
     } finally {
         btn.disabled = false;
         btnText.textContent = '✨ Отформатировать через ИИ';
+    }
+});
+
+// Перед сабмитом — если остались в режиме ввода, берём текст из textarea
+document.querySelector('form').addEventListener('submit', function() {
+    if (inputMode.style.display !== 'none') {
+        hiddenInput.value = textarea.value;
     }
 });
 </script>

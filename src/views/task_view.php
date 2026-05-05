@@ -86,10 +86,9 @@ $activeTab = $_GET['tab'] ?? 'comments';
             <h1 class="task-title"><?= htmlspecialchars($task['title']) ?></h1>
 
         <?php if ($task['description']): ?>
-            <div class="task-description ql-editor" style="padding:0">
+            <div class="desc-preview">
                 <?= $task['description'] ?>
             </div>
-            <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet">
         <?php endif; ?>
 
             <!-- Теги -->
