@@ -41,6 +41,9 @@ $activeTab = $_GET['tab'] ?? 'comments';
 
     <div class="page-header">
         <a href="/" class="btn btn-ghost">← Доска</a>
+        <?php if ($task['status'] !== 'pending_archive'): ?>
+            <a href="/tasks/<?= $task['id'] ?>/edit" class="btn btn-ghost">Редактировать</a>
+        <?php endif; ?>
     </div>
 
     <?php if (isset($_GET['error']) && $_GET['error'] === 'same_user'): ?>
