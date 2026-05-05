@@ -38,7 +38,7 @@ if ($uri === '/api/format') {
 Текст для форматирования:
 {$text}";
 
-    $response = file_get_contents('https://api.anthropic.com/v1/messages', false, stream_context_create([
+    $response = file_get_contents('https://api.proxyapi.ru/anthropic/v1/messages', false, stream_context_create([
         'http' => [
             'method'  => 'POST',
             'header'  => implode("\r\n", [
