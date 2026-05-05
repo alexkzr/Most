@@ -13,6 +13,8 @@ $method = $_SERVER['REQUEST_METHOD'];
 // /tasks/123/archive
 
 $parts = explode('/', trim($uri, '/'));
+
+var_dump($parts, $action, $sub); exit;
 // $parts[0] = 'tasks'
 // $parts[1] = 'create' или ID
 // $parts[2] = 'edit', 'move', 'archive' (опционально)
@@ -188,7 +190,89 @@ if (is_numeric($action) && !$sub) {
     require __DIR__ . '/../views/task_view.php';
     exit;
 }
+// ===========================
+// РЕДАКТИРОВАНИЕ ЗАДАЧИ
+// ===========================
+if (is_numeric($action) && $sub === 'edit') {
+    $taskId = (int)$action;
 
+    $stmt = db()->prepare('SELECT * FROM tasks WHERE id = ?');
+    $stmt->execute([$taskId]);
+    $task = $stmt->fetch();
+
+    if (!$task) {
+        http_response_code(404);
+        echo '404 — задача не найдена';
+        exit;
+    }
+
+    $projects  = db()->query('SELECT * FROM projects WHERE is_archived = 0 ORDER BY name')->fetchAll();
+    $assignees = db()->query('SELECT * FROM assignees ORDER BY name')->fetchAll();
+    $tags      = db()->query('SELECT * FROM tags ORDER BY name')->fetchAll();
+
+    // Теги задачи
+    $stmt2 = db()->prepare('SELECT tag_id FROM task_tags WHERE task_id = ?');
+    $stmt2->execute([$taskId]);
+    $selectedTags = array_column($stmt2->fetchAll(), 'tag_id');
+
+    $error = '';
+
+    if ($method === 'POST') {
+        $title       = trim($_POST['title'] ?? '');
+        $description = trim($_POST['description'] ?? '');
+        $project_id  = (int)($_POST['project_id'] ?? 0);
+        $assignee_id = (int)($_POST['assignee_id'] ?? 0) ?: null;
+        $customer    = trim($_POST['customer'] ?? '');
+        $priority    = $_POST['priority'] ?? 'medium';
+        $deadline    = $_POST['deadline'] ?? null ?: null;
+        $estimated   = $_POST['estimated_hours'] ?? null ?: null;
+        $newTags     = $_POST['tags'] ?? [];
+
+        if (!$title || !$project_id) {
+            $error = 'Заполните название и проект';
+        } else {
+            // Логируем изменения
+            $fields = [
+                'title'           => ['Название',    $task['title'],           $title],
+                'customer'        => ['Заказчик',     $task['customer'],        $customer],
+                'priority'        => ['Приоритет',    $task['priority'],        $priority],
+                'deadline'        => ['Срок',         $task['deadline'],        $deadline],
+                'estimated_hours' => ['Оценка (ч)',   $task['estimated_hours'], $estimated],
+            ];
+
+            foreach ($fields as $field => [$label, $old, $new]) {
+                if ((string)$old !== (string)$new) {
+                    logHistory($taskId, $_SESSION['user_id'], "Изменено: $label", (string)$old, (string)$new);
+                }
+            }
+
+            db()->prepare('
+                UPDATE tasks
+                SET title = ?, description = ?, project_id = ?, assignee_id = ?,
+                    customer = ?, priority = ?, deadline = ?, estimated_hours = ?
+                WHERE id = ?
+            ')->execute([
+                $title, $description, $project_id, $assignee_id,
+                $customer, $priority, $deadline, $estimated, $taskId
+            ]);
+
+            // Обновляем теги
+            db()->prepare('DELETE FROM task_tags WHERE task_id = ?')->execute([$taskId]);
+            if ($newTags) {
+                $stmtTag = db()->prepare('INSERT INTO task_tags (task_id, tag_id) VALUES (?, ?)');
+                foreach ($newTags as $tagId) {
+                    $stmtTag->execute([$taskId, (int)$tagId]);
+                }
+            }
+
+            header('Location: /tasks/' . $taskId);
+            exit;
+        }
+    }
+
+    require __DIR__ . '/../views/task_edit.php';
+    exit;
+}   
 // ===========================
 // ПЕРЕМЕЩЕНИЕ (смена статуса)
 // ===========================
