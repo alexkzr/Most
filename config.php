@@ -13,6 +13,9 @@ define('DB_PASS', $env['DB_PASS']);
 define('APP_NAME', $env['APP_NAME']);
 define('APP_URL',  $env['APP_URL']);
 
+//proxyapi token
+define('ANTHROPIC_API_KEY', $env['ANTHROPIC_API_KEY']);
+
 // Сессия
 define('SESSION_NAME', $env['SESSION_NAME']);
 
