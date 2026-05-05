@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
-<?php $pageTitle = 'Форма Таски'; require __DIR__ . '/head.php'; ?>
+<?php $pageTitle = 'Новая задача'; require __DIR__ . '/head.php'; ?>
 <body>
 
 <header class="header">
@@ -28,8 +28,16 @@
 
             <!-- Название -->
             <div class="form-group">
-                <label for="description">Описание</label>
-                <div style="position:relative">
+                <label for="title">Название <span class="required">*</span></label>
+                <input type="text" id="title" name="title"
+                       value="<?= htmlspecialchars($_POST['title'] ?? '') ?>"
+                       placeholder="Кратко опишите задачу" autofocus>
+            </div>
+
+            <!-- Описание -->
+            <div class="form-group">
+                <label>Описание</label>
+                <div style="position:relative;margin-top:8px">
                     <button type="button" id="ai-format-btn" class="btn btn-ghost btn-sm"
                             style="position:absolute;top:-34px;right:0;z-index:10;display:flex;align-items:center;gap:6px">
                         <span id="ai-btn-text">✨ Отформатировать через ИИ</span>
@@ -39,15 +47,7 @@
                 </div>
             </div>
 
-            <!-- Описание -->
-            <div class="form-group">
-                <label for="description">Описание</label>
-                <textarea id="description" name="description"
-                          placeholder="Подробности, требования, ссылки..."><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
-            </div>
-
             <div class="form-row">
-                <!-- Проект -->
                 <div class="form-group">
                     <label for="project_id">Проект <span class="required">*</span></label>
                     <select id="project_id" name="project_id">
@@ -61,7 +61,6 @@
                     </select>
                 </div>
 
-                <!-- Исполнитель -->
                 <div class="form-group">
                     <label for="assignee_id">Исполнитель</label>
                     <select id="assignee_id" name="assignee_id">
@@ -77,7 +76,6 @@
             </div>
 
             <div class="form-row">
-                <!-- Заказчик -->
                 <div class="form-group">
                     <label for="customer">Заказчик</label>
                     <input type="text" id="customer" name="customer"
@@ -85,7 +83,6 @@
                            placeholder="Кто инициировал задачу">
                 </div>
 
-                <!-- Приоритет -->
                 <div class="form-group">
                     <label for="priority">Приоритет</label>
                     <select id="priority" name="priority">
@@ -97,14 +94,12 @@
             </div>
 
             <div class="form-row">
-                <!-- Срок -->
                 <div class="form-group">
                     <label for="deadline">Срок</label>
                     <input type="date" id="deadline" name="deadline"
                            value="<?= htmlspecialchars($_POST['deadline'] ?? '') ?>">
                 </div>
 
-                <!-- Оценка -->
                 <div class="form-group">
                     <label for="estimated_hours">Оценка (часов)</label>
                     <input type="number" id="estimated_hours" name="estimated_hours"
@@ -114,7 +109,6 @@
                 </div>
             </div>
 
-            <!-- Теги -->
             <?php if ($tags): ?>
             <div class="form-group">
                 <label>Теги</label>
@@ -140,8 +134,8 @@
         </div>
     </form>
 </div>
+
 <script>
-// Инициализация Quill
 const quill = new Quill('#description-editor', {
     theme: 'snow',
     placeholder: 'Подробности, требования, ссылки...',
@@ -151,50 +145,37 @@ const quill = new Quill('#description-editor', {
             ['bold', 'italic', 'underline', 'strike'],
             [{ list: 'ordered' }, { list: 'bullet' }],
             ['code-block', 'blockquote'],
-            [{ table: true }],
             ['clean']
         ]
     }
 });
 
-// Если есть сохранённое значение — загружаем
 const savedContent = document.getElementById('description').value;
-if (savedContent) {
-    quill.root.innerHTML = savedContent;
-}
+if (savedContent) quill.root.innerHTML = savedContent;
 
-// Перед сабмитом — копируем HTML из Quill в textarea
 document.querySelector('form').addEventListener('submit', function() {
     document.getElementById('description').value = quill.root.innerHTML;
 });
 
-// ИИ форматирование
 document.getElementById('ai-format-btn').addEventListener('click', async function() {
     const text = quill.getText().trim();
-    if (!text) {
-        alert('Сначала введите текст');
-        return;
-    }
+    if (!text) { alert('Сначала введите текст'); return; }
 
-    const btn     = this;
+    const btn = this;
     const btnText = document.getElementById('ai-btn-text');
-    btn.disabled  = true;
+    btn.disabled = true;
     btnText.textContent = '⏳ Форматирую...';
 
     try {
-        const res = await fetch('/api/format', {
+        const res  = await fetch('/api/format', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ text: quill.root.innerHTML })
         });
-
         const data = await res.json();
-        if (data.html) {
-            quill.root.innerHTML = data.html;
-        } else {
-            alert('Ошибка форматирования');
-        }
-    } catch (e) {
+        if (data.html) quill.root.innerHTML = data.html;
+        else alert('Ошибка форматирования');
+    } catch(e) {
         alert('Ошибка соединения');
     } finally {
         btn.disabled = false;
@@ -202,5 +183,6 @@ document.getElementById('ai-format-btn').addEventListener('click', async functio
     }
 });
 </script>
+
 </body>
 </html>
