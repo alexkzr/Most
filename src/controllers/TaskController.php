@@ -14,7 +14,6 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 $parts = explode('/', trim($uri, '/'));
 
-var_dump($parts, $action, $sub); exit;
 // $parts[0] = 'tasks'
 // $parts[1] = 'create' или ID
 // $parts[2] = 'edit', 'move', 'archive' (опционально)
