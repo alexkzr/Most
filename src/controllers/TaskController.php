@@ -207,6 +207,7 @@ if (is_numeric($action) && $sub === 'edit') {
         $deadline    = $_POST['deadline'] ?? null ?: null;
         $estimated   = $_POST['estimated_hours'] ?? null ?: null;
         $complexity  = $_POST['complexity'] ?? null ?: null;
+        $work_type   = $_POST['work_type'] ?? null ?: null;
         $newTags     = $_POST['tags'] ?? [];
 
         if (!$title || !$project_id) {
@@ -217,6 +218,7 @@ if (is_numeric($action) && $sub === 'edit') {
                 'customer'        => ['Заказчик',     $task['customer'],        $customer],
                 'priority'        => ['Приоритет',    $task['priority'],        $priority],
                 'complexity'      => ['Сложность',    $task['complexity'],      $complexity],
+                'work_type' => ['Тип работ', $task['work_type'], $work_type],
                 'deadline'        => ['Срок',         $task['deadline'],        $deadline],
                 'estimated_hours' => ['Оценка (ч)',   $task['estimated_hours'], $estimated],
             ];
