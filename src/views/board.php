@@ -1,10 +1,9 @@
 <?php
 $statusLabels = [
-    'new'             => 'Новые',
-    'in_progress'     => 'В работе',
-    'testing'         => 'Тестирование',
-    'done'            => 'Готово',
-    'pending_archive' => 'В архив',
+    'new'         => 'Очередь',
+    'in_progress' => 'В работе',
+    'testing'     => 'Тестирование',
+    'done'        => 'Завершено',
 ];
 $priorityLabels = [
     'high'   => 'Высокий',
@@ -35,10 +34,10 @@ $priorityLabels = [
 
     <!-- Статистика -->
     <div class="header-stats">
-        <div class="header-stat">Новые <span><?= $stats['new'] ?? 0 ?></span></div>
+        <div class="header-stat">Очередь <span><?= $stats['new'] ?? 0 ?></span></div>
         <div class="header-stat">В работе <span><?= $stats['in_progress'] ?? 0 ?></span></div>
         <div class="header-stat">Тестирование <span><?= $stats['testing'] ?? 0 ?></span></div>
-        <div class="header-stat">Готово <span><?= $stats['done'] ?? 0 ?></span></div>
+        <div class="header-stat">Завершено <span><?= $stats['done'] ?? 0 ?></span></div>
     </div>
 
     <!-- Навигация -->
@@ -107,50 +106,28 @@ $priorityLabels = [
     <?php endforeach; ?>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
 <script>
-const columns = document.querySelectorAll('.column-body');
-
-columns.forEach(col => {
+document.querySelectorAll('.column-body').forEach(col => {
     Sortable.create(col, {
         group: 'tasks',
         animation: 150,
         ghostClass: 'card-ghost',
         dragClass: 'card-drag',
         onEnd: function(evt) {
-            const taskId   = evt.item.dataset.taskId;
+            const taskId    = evt.item.dataset.taskId;
             const newStatus = evt.to.closest('.column').dataset.status;
 
-            // Не даём перетаскивать в pending_archive руками
-            onEnd: function(evt) {
-                const taskId    = evt.item.dataset.taskId;
-                const newStatus = evt.to.closest('.column').dataset.status;
+            if (newStatus === 'pending_archive') {
+                evt.from.insertBefore(evt.item, evt.from.children[evt.oldIndex]);
+                return;
+            }
 
-                if (newStatus === 'pending_archive') {
-                    evt.from.insertBefore(evt.item, evt.from.children[evt.oldIndex]);
+            if (newStatus === 'done') {
+                if (!confirm('Перевести задачу в «Завершено»? Будет запущено архивирование после подтверждения второго администратора.')) {
+                    evt.from.insertBefore(evt.item, evt.from.children[evt.oldIndex] || null);
                     return;
                 }
-
-                // При переводе в Завершено — предупреждаем
-                if (newStatus === 'done') {
-                    if (!confirm('Перевести задачу в «Завершено»? Будет запущено архивирование после подтверждения второго администратора.')) {
-                        evt.from.insertBefore(evt.item, evt.from.children[evt.oldIndex] || null);
-                        return;
-                    }
-                }
-
-                fetch('/tasks/' + taskId + '/move', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: 'status=' + encodeURIComponent(newStatus)
-                }).then(r => {
-                    if (!r.ok) {
-                        evt.from.insertBefore(evt.item, evt.from.children[evt.oldIndex]);
-                    }
-                    document.querySelectorAll('.column').forEach(c => {
-                        const count = c.querySelector('.column-body').children.length;
-                        c.querySelector('.column-count').textContent = count;
-                    });
-                });
             }
 
             fetch('/tasks/' + taskId + '/move', {
@@ -159,10 +136,8 @@ columns.forEach(col => {
                 body: 'status=' + encodeURIComponent(newStatus)
             }).then(r => {
                 if (!r.ok) {
-                    // Откатываем если ошибка
                     evt.from.insertBefore(evt.item, evt.from.children[evt.oldIndex]);
                 }
-                // Обновляем счётчики колонок
                 document.querySelectorAll('.column').forEach(c => {
                     const count = c.querySelector('.column-body').children.length;
                     c.querySelector('.column-count').textContent = count;
