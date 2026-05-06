@@ -1197,3 +1197,30 @@ a {
     color: #fca5a5;
 }
 
+/* ===========================
+   Отделы и заказчики
+   =========================== */
+
+.dept-block {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.dept-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--bg-secondary);
+}
+
+.dept-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.customers-list {
+    padding: 4px 0;
+}

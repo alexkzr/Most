@@ -80,8 +80,72 @@ if ($method === 'POST' && $_POST['form'] === 'set_theme') {
     exit;
 }
 
+// ===========================
+// ОТДЕЛЫ
+// ===========================
+
+if ($method === 'POST' && $_POST['form'] === 'add_department') {
+    $name = trim($_POST['name'] ?? '');
+    if ($name) {
+        db()->prepare('INSERT INTO departments (name) VALUES (?)')->execute([$name]);
+        header('Location: /settings?success=1');
+        exit;
+    }
+}
+
+if ($method === 'POST' && $_POST['form'] === 'rename_department') {
+    $id   = (int)$_POST['id'];
+    $name = trim($_POST['name'] ?? '');
+    if ($id && $name) {
+        db()->prepare('UPDATE departments SET name = ? WHERE id = ?')->execute([$name, $id]);
+        header('Location: /settings?success=1');
+        exit;
+    }
+}
+
+if ($method === 'POST' && $_POST['form'] === 'delete_department') {
+    $id = (int)$_POST['id'];
+    db()->prepare('DELETE FROM departments WHERE id = ?')->execute([$id]);
+    header('Location: /settings?success=1');
+    exit;
+}
+
+// ===========================
+// ЗАКАЗЧИКИ
+// ===========================
+
+if ($method === 'POST' && $_POST['form'] === 'add_customer') {
+    $name          = trim($_POST['name'] ?? '');
+    $department_id = (int)$_POST['department_id'];
+    if ($name && $department_id) {
+        db()->prepare('INSERT INTO customers (department_id, name) VALUES (?, ?)')->execute([$department_id, $name]);
+        header('Location: /settings?success=1');
+        exit;
+    }
+}
+
+if ($method === 'POST' && $_POST['form'] === 'rename_customer') {
+    $id   = (int)$_POST['id'];
+    $name = trim($_POST['name'] ?? '');
+    if ($id && $name) {
+        db()->prepare('UPDATE customers SET name = ? WHERE id = ?')->execute([$name, $id]);
+        header('Location: /settings?success=1');
+        exit;
+    }
+}
+
+if ($method === 'POST' && $_POST['form'] === 'delete_customer') {
+    $id = (int)$_POST['id'];
+    db()->prepare('DELETE FROM customers WHERE id = ?')->execute([$id]);
+    header('Location: /settings?success=1');
+    exit;
+}
+
 // Данные для отображения
-$projects         = db()->query('SELECT * FROM projects ORDER BY is_archived ASC, name ASC')->fetchAll();
-$tags             = db()->query('SELECT * FROM tags ORDER BY name')->fetchAll();
+// Данные для отображения
+$projects    = db()->query('SELECT * FROM projects ORDER BY is_archived ASC, name ASC')->fetchAll();
+$tags        = db()->query('SELECT * FROM tags ORDER BY name')->fetchAll();
+$departments = db()->query('SELECT * FROM departments ORDER BY name')->fetchAll();
+$customers   = db()->query('SELECT c.*, d.name AS department_name FROM customers c JOIN departments d ON d.id = c.department_id ORDER BY d.name, c.name')->fetchAll();
 
 require __DIR__ . '/../views/settings.php';

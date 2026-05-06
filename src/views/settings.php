@@ -152,6 +152,95 @@
             <button type="submit" class="btn btn-primary">Добавить</button>
         </form>
     </div>
+    <!-- Отделы и заказчики -->
+    <div class="settings-section">
+        <h2 class="settings-title">Отделы и заказчики</h2>
+
+        <?php foreach ($departments as $dept): ?>
+            <div class="dept-block">
+                <div class="dept-header">
+                    <span class="dept-name"><?= htmlspecialchars($dept['name']) ?></span>
+                    <div class="settings-item-actions">
+                        <button class="btn btn-ghost btn-sm"
+                                onclick="document.getElementById('rename-dept-<?= $dept['id'] ?>').style.display='block';this.style.display='none'">
+                            Переименовать
+                        </button>
+                        <form method="POST" action="/settings" style="display:inline">
+                            <input type="hidden" name="form" value="delete_department">
+                            <input type="hidden" name="id" value="<?= $dept['id'] ?>">
+                            <button type="submit" class="btn btn-ghost btn-sm"
+                                    onclick="return confirm('Удалить отдел и всех заказчиков?')">
+                                Удалить
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Форма переименования отдела -->
+                <div id="rename-dept-<?= $dept['id'] ?>" style="display:none;padding:8px 0">
+                    <form method="POST" action="/settings" style="display:flex;gap:8px">
+                        <input type="hidden" name="form" value="rename_department">
+                        <input type="hidden" name="id" value="<?= $dept['id'] ?>">
+                        <input type="text" name="name" value="<?= htmlspecialchars($dept['name']) ?>" style="flex:1">
+                        <button type="submit" class="btn btn-primary btn-sm">Сохранить</button>
+                        <button type="button" class="btn btn-ghost btn-sm"
+                                onclick="this.closest('div').style.display='none'">Отмена</button>
+                    </form>
+                </div>
+
+                <!-- Заказчики отдела -->
+                <div class="customers-list">
+                    <?php foreach ($customers as $c): ?>
+                        <?php if ($c['department_id'] != $dept['id']) continue; ?>
+                        <div class="settings-item" style="padding-left:16px">
+                            <span class="settings-item-name">— <?= htmlspecialchars($c['name']) ?></span>
+                            <div class="settings-item-actions">
+                                <button class="btn btn-ghost btn-sm"
+                                        onclick="document.getElementById('rename-customer-<?= $c['id'] ?>').style.display='block';this.style.display='none'">
+                                    Изменить
+                                </button>
+                                <form method="POST" action="/settings" style="display:inline">
+                                    <input type="hidden" name="form" value="delete_customer">
+                                    <input type="hidden" name="id" value="<?= $c['id'] ?>">
+                                    <button type="submit" class="btn btn-ghost btn-sm"
+                                            onclick="return confirm('Удалить заказчика?')">
+                                        Удалить
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <div id="rename-customer-<?= $c['id'] ?>" style="display:none;padding:8px 16px">
+                            <form method="POST" action="/settings" style="display:flex;gap:8px">
+                                <input type="hidden" name="form" value="rename_customer">
+                                <input type="hidden" name="id" value="<?= $c['id'] ?>">
+                                <input type="text" name="name" value="<?= htmlspecialchars($c['name']) ?>" style="flex:1">
+                                <button type="submit" class="btn btn-primary btn-sm">Сохранить</button>
+                                <button type="button" class="btn btn-ghost btn-sm"
+                                        onclick="this.closest('div').style.display='none'">Отмена</button>
+                            </form>
+                        </div>
+                    <?php endforeach; ?>
+
+                    <!-- Добавить заказчика в этот отдел -->
+                    <form method="POST" action="/settings" style="display:flex;gap:8px;padding:8px 16px">
+                        <input type="hidden" name="form" value="add_customer">
+                        <input type="hidden" name="department_id" value="<?= $dept['id'] ?>">
+                        <input type="text" name="name" placeholder="Имя нового заказчика" style="flex:1">
+                        <button type="submit" class="btn btn-ghost btn-sm">+ Добавить</button>
+                    </form>
+                </div>
+            </div>
+        <?php endforeach; ?>
+
+        <!-- Добавить отдел -->
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+            <form method="POST" action="/settings" style="display:flex;gap:8px">
+                <input type="hidden" name="form" value="add_department">
+                <input type="text" name="name" placeholder="Название нового отдела" style="flex:1">
+                <button type="submit" class="btn btn-primary">Добавить отдел</button>
+            </form>
+        </div>
+    </div>
 
 </div>
 <script>

@@ -89,10 +89,32 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="customer">Заказчик</label>
-                    <input type="text" id="customer" name="customer"
-                           value="<?= htmlspecialchars($_POST['customer'] ?? $task['customer']) ?>">
+                    <label for="department_id">Отдел</label>
+                    <select id="department_id" name="department_id" onchange="filterCustomers(this.value)">
+                        <option value="">— выберите отдел —</option>
+                        <?php foreach ($departments as $d): ?>
+                            <option value="<?= $d['id'] ?>"
+                                <?= $task['department_id'] == $d['id'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($d['name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
+
+                <div class="form-group">
+                    <label for="customer_id">Заказчик</label>
+                    <select id="customer_id" name="customer_id">
+                        <option value="">— выберите заказчика —</option>
+                        <?php foreach ($customers_all as $c): ?>
+                            <option value="<?= $c['id'] ?>"
+                                    data-dept="<?= $c['department_id'] ?>"
+                                <?= $task['customer_id'] == $c['id'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($c['name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
 
                 <div class="form-group">
                     <label for="priority">Приоритет</label>
@@ -226,6 +248,20 @@ document.querySelector('form').addEventListener('submit', function() {
     }
 });
 </script>
+<script>
+function filterCustomers(deptId) {
+    const select  = document.getElementById('customer_id');
+    const options = select.querySelectorAll('option');
+    options.forEach(opt => {
+        if (!opt.value) return;
+        opt.style.display = (!deptId || opt.dataset.dept === deptId) ? '' : 'none';
+    });
+    select.value = '';
+}
 
+// При загрузке — фильтруем если уже выбран отдел
+const deptSelect = document.getElementById('department_id');
+if (deptSelect.value) filterCustomers(deptSelect.value);
+</script>
 </body>
 </html>

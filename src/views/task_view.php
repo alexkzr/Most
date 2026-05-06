@@ -257,10 +257,25 @@ $activeTab = $_GET['tab'] ?? 'comments';
             </div>
 
             <!-- Заказчик -->
-            <?php if ($task['customer']): ?>
+            <?php if ($task['customer_id']): ?>
             <div class="sidebar-block">
                 <div class="sidebar-label">Заказчик</div>
-                <div class="sidebar-value"><?= htmlspecialchars($task['customer']) ?></div>
+                <div class="sidebar-value">
+                    <?php
+                    $stmtC = db()->prepare('
+                        SELECT c.name AS customer_name, d.name AS dept_name
+                        FROM customers c
+                        JOIN departments d ON d.id = c.department_id
+                        WHERE c.id = ?
+                    ');
+                    $stmtC->execute([$task['customer_id']]);
+                    $customerInfo = $stmtC->fetch();
+                    ?>
+                    <?php if ($customerInfo): ?>
+                        <span style="color:var(--text-muted);font-size:12px"><?= htmlspecialchars($customerInfo['dept_name']) ?></span><br>
+                        <?= htmlspecialchars($customerInfo['customer_name']) ?>
+                    <?php endif; ?>
+                </div>
             </div>
             <?php endif; ?>
 

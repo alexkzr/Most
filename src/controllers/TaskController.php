@@ -25,6 +25,8 @@ if ($action === 'create') {
 
     $projects  = db()->query('SELECT * FROM projects WHERE is_archived = 0 ORDER BY name')->fetchAll();
     $assignees = db()->query('SELECT * FROM assignees ORDER BY name')->fetchAll();
+    $departments = db()->query('SELECT * FROM departments ORDER BY name')->fetchAll();
+    $customers_all = db()->query('SELECT * FROM customers ORDER BY name')->fetchAll();
     $tags      = db()->query('SELECT * FROM tags ORDER BY name')->fetchAll();
     $error     = '';
 
@@ -33,7 +35,8 @@ if ($action === 'create') {
         $description   = trim($_POST['description'] ?? '');
         $project_id    = (int)($_POST['project_id'] ?? 0);
         $assignee_id   = (int)($_POST['assignee_id'] ?? 0) ?: null;
-        $customer      = trim($_POST['customer'] ?? '');
+        $department_id = (int)($_POST['department_id'] ?? 0) ?: null;
+        $customer_id   = (int)($_POST['customer_id'] ?? 0) ?: null;
         $priority      = $_POST['priority'] ?? 'medium';
         $deadline      = $_POST['deadline'] ?? null ?: null;
         $estimated     = $_POST['estimated_hours'] ?? null ?: null;
@@ -46,13 +49,13 @@ if ($action === 'create') {
         } else {
             $stmt = db()->prepare('
                 INSERT INTO tasks
-                    (title, description, project_id, assignee_id, customer, priority, complexity, work_type, deadline, estimated_hours, created_by)
+                    (title, description, project_id, assignee_id, department_id, customer_id, priority, complexity, work_type, deadline, estimated_hours, created_by)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ');
             $stmt->execute([
                 $title, $description, $project_id, $assignee_id,
-                $customer, $priority, $complexity, $work_type, $deadline, $estimated,
-                $_SESSION['user_id']
+                $department_id, $customer_id, $priority, $complexity, $work_type,
+                $deadline, $estimated, $_SESSION['user_id']
             ]);
             $taskId = db()->lastInsertId();
 
@@ -202,7 +205,8 @@ if (is_numeric($action) && $sub === 'edit') {
         $description = trim($_POST['description'] ?? '');
         $project_id  = (int)($_POST['project_id'] ?? 0);
         $assignee_id = (int)($_POST['assignee_id'] ?? 0) ?: null;
-        $customer    = trim($_POST['customer'] ?? '');
+        $department_id = (int)($_POST['department_id'] ?? 0) ?: null;
+        $customer_id   = (int)($_POST['customer_id'] ?? 0) ?: null;
         $priority    = $_POST['priority'] ?? 'medium';
         $deadline    = $_POST['deadline'] ?? null ?: null;
         $estimated   = $_POST['estimated_hours'] ?? null ?: null;
@@ -215,7 +219,8 @@ if (is_numeric($action) && $sub === 'edit') {
         } else {
             $fields = [
                 'title'           => ['Название',    $task['title'],           $title],
-                'customer'        => ['Заказчик',     $task['customer'],        $customer],
+                'department_id' => ['Отдел',    $task['department_id'], $department_id],
+                'customer_id'   => ['Заказчик', $task['customer_id'],   $customer_id],
                 'priority'        => ['Приоритет',    $task['priority'],        $priority],
                 'complexity'      => ['Сложность',    $task['complexity'],      $complexity],
                 'work_type' => ['Тип работ', $task['work_type'], $work_type],
@@ -230,13 +235,15 @@ if (is_numeric($action) && $sub === 'edit') {
             }
 
             db()->prepare('
-                UPDATE tasks
-                SET title = ?, description = ?, project_id = ?, assignee_id = ?,
-                    customer = ?, priority = ?, complexity = ?, work_type = ?, deadline = ?, estimated_hours = ?
-                WHERE id = ?
+            UPDATE tasks
+            SET title = ?, description = ?, project_id = ?, assignee_id = ?,
+                department_id = ?, customer_id = ?, priority = ?, complexity = ?,
+                work_type = ?, deadline = ?, estimated_hours = ?
+            WHERE id = ?
             ')->execute([
                 $title, $description, $project_id, $assignee_id,
-                $customer, $priority, $complexity, $work_type, $deadline, $estimated, $taskId
+                $department_id, $customer_id, $priority, $complexity,
+                $work_type, $deadline, $estimated, $taskId
             ]);
 
             db()->prepare('DELETE FROM task_tags WHERE task_id = ?')->execute([$taskId]);
