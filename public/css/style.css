@@ -83,7 +83,7 @@ a {
     margin-bottom: 16px;
 }
 
-.form-group label {
+.form-group label:not(.checkbox-label):not(.tag-checkbox):not(.star) {
     display: block;
     margin-bottom: 6px;
     color: var(--text-muted);
