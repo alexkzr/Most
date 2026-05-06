@@ -158,17 +158,24 @@
             </div>                    
             <div class="form-row">
                 <div class="form-group">
-                    <label for="deadline">Срок</label>
-                    <input type="date" id="deadline" name="deadline"
-                           value="<?= htmlspecialchars($_POST['deadline'] ?? '') ?>">
-                </div>
-
-                <div class="form-group">
                     <label for="estimated_hours">Оценка (часов)</label>
                     <input type="number" id="estimated_hours" name="estimated_hours"
-                           min="0.5" max="999" step="0.5"
-                           value="<?= htmlspecialchars($_POST['estimated_hours'] ?? '') ?>"
-                           placeholder="например 4">
+                        min="0.5" max="999" step="0.5"
+                        value="<?= htmlspecialchars($_POST['estimated_hours'] ?? '') ?>"
+                        placeholder="например 4">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="date_start">Дата начала</label>
+                    <input type="date" id="date_start" name="date_start"
+                        value="<?= htmlspecialchars($_POST['date_start'] ?? '') ?>">
+                </div>
+                <div class="form-group">
+                    <label for="date_end">Дата завершения</label>
+                    <input type="date" id="date_end" name="date_end"
+                        value="<?= htmlspecialchars($_POST['date_end'] ?? '') ?>">
                 </div>
             </div>
 

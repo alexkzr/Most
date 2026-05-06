@@ -60,12 +60,14 @@ $priorityLabels = [
             </div>
             <div class="column-body" id="col-<?= $status ?>">
                 <?php foreach ($column['tasks'] as $task): ?>
-                   <div class="card <?= $task['status'] === 'pending_archive' ? 'pending-archive' : '' ?>"
+                    <div class="card <?= $task['status'] === 'pending_archive' ? 'pending-archive' : '' ?> <?= $task['is_presidency'] ? 'card-presidency' : '' ?>"
                         data-task-id="<?= $task['id'] ?>"
                         onclick="window.location='/tasks/<?= $task['id'] ?>'">
 
                         <div class="card-title"><?= htmlspecialchars($task['title']) ?></div>
-
+                        <?php if ($task['is_presidency']): ?>
+                            <div class="presidency-badge">🔴 Area Presidency</div>
+                        <?php endif; ?>
                         <div class="card-meta">
                             <!-- Приоритет -->
                             <span class="badge badge-<?= $task['priority'] ?>">
@@ -88,12 +90,12 @@ $priorityLabels = [
                             <?php endforeach; ?>
 
                             <!-- Дедлайн -->
-                            <?php if ($task['deadline']): ?>
+                            <?php if ($task['date_end']): ?>
                                 <?php
-                                $overdue = strtotime($task['deadline']) < time() && $task['status'] !== 'done';
+                                $overdue = $task['date_end'] && strtotime($task['date_end']) < time() && $task['status'] !== 'done';
                                 ?>
                                 <span class="card-deadline <?= $overdue ? 'overdue' : '' ?>">
-                                    <?= date('d.m', strtotime($task['deadline'])) ?>
+                                    <?= date('d.m', strtotime($task['date_end'])) ?>
                                 </span>
                             <?php endif; ?>
 
@@ -115,7 +117,6 @@ $priorityLabels = [
         </div>
     <?php endforeach; ?>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
 <script>
 document.querySelectorAll('.column-body').forEach(col => {

@@ -320,15 +320,17 @@ $activeTab = $_GET['tab'] ?? 'comments';
                 <?php endif; ?>
             </div>
             <?php endif; ?>
-            <!-- Срок -->
-            <?php if ($task['deadline']): ?>
+            <?php if ($task['date_start'] || $task['date_end']): ?>
             <div class="sidebar-block">
-                <div class="sidebar-label">Срок</div>
-                <?php $overdue = strtotime($task['deadline']) < time() && $task['status'] !== 'done'; ?>
-                <div class="sidebar-value <?= $overdue ? 'text-danger' : '' ?>">
-                    <?= date('d.m.Y', strtotime($task['deadline'])) ?>
-                    <?= $overdue ? '⚠ просрочено' : '' ?>
-                </div>
+                <div class="sidebar-label">Даты</div>
+                <?php if ($task['date_start']): ?>
+                    <div class="sidebar-value" style="font-size:12px;color:var(--text-muted)">Начало</div>
+                    <div class="sidebar-value"><?= date('d.m.Y', strtotime($task['date_start'])) ?></div>
+                <?php endif; ?>
+                <?php if ($task['date_end']): ?>
+                    <div class="sidebar-value" style="font-size:12px;color:var(--text-muted);margin-top:6px">Завершение</div>
+                    <div class="sidebar-value"><?= date('d.m.Y', strtotime($task['date_end'])) ?></div>
+                <?php endif; ?>
             </div>
             <?php endif; ?>
 

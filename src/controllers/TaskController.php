@@ -39,10 +39,11 @@ if ($action === 'create') {
         $customer_id   = (int)($_POST['customer_id'] ?? 0) ?: null;
         $is_presidency = isset($_POST['is_presidency']) ? 1 : 0;
         $priority      = $_POST['priority'] ?? 'medium';
-        $deadline      = $_POST['deadline'] ?? null ?: null;
         $estimated     = $_POST['estimated_hours'] ?? null ?: null;
         $complexity    = $_POST['complexity'] ?? null ?: null;
         $work_type     = $_POST['work_type'] ?? null ?: null;
+        $date_start    = $_POST['date_start'] ?? null ?: null;
+        $date_end      = $_POST['date_end'] ?? null ?: null;
         $selected_tags = $_POST['tags'] ?? [];
 
         if (!$title || !$project_id) {
@@ -50,14 +51,15 @@ if ($action === 'create') {
         } else {
             $stmt = db()->prepare('
                 INSERT INTO tasks
-                    (title, description, project_id, assignee_id, department_id, customer_id, is_presidency, priority, complexity, work_type, deadline, estimated_hours, created_by)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    (title, description, project_id, assignee_id, department_id, customer_id, is_presidency, priority, complexity, work_type, estimated_hours, date_start, date_end, created_by)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ');
             $stmt->execute([
                 $title, $description, $project_id, $assignee_id,
                 $department_id, $customer_id, $is_presidency,
                 $priority, $complexity, $work_type,
-                $deadline, $estimated, $_SESSION['user_id']
+                $estimated, $date_start, $date_end,
+                $_SESSION['user_id']
             ]);
             $taskId = db()->lastInsertId();
 
@@ -213,25 +215,27 @@ if (is_numeric($action) && $sub === 'edit') {
         $customer_id   = (int)($_POST['customer_id'] ?? 0) ?: null;
         $is_presidency = isset($_POST['is_presidency']) ? 1 : 0;
         $priority      = $_POST['priority'] ?? 'medium';
-        $deadline      = $_POST['deadline'] ?? null ?: null;
         $estimated     = $_POST['estimated_hours'] ?? null ?: null;
         $complexity    = $_POST['complexity'] ?? null ?: null;
         $work_type     = $_POST['work_type'] ?? null ?: null;
+        $date_start    = $_POST['date_start'] ?? null ?: null;
+        $date_end      = $_POST['date_end'] ?? null ?: null;
         $newTags       = $_POST['tags'] ?? [];
 
         if (!$title || !$project_id) {
             $error = 'Заполните название и проект';
         } else {
             $fields = [
-                'title'         => ['Название',    $task['title'],         $title],
-                'department_id' => ['Отдел',       $task['department_id'], $department_id],
-                'customer_id'   => ['Заказчик',    $task['customer_id'],   $customer_id],
-                'is_presidency' => ['Президентство', $task['is_presidency'], $is_presidency],
-                'priority'      => ['Приоритет',   $task['priority'],      $priority],
-                'complexity'    => ['Сложность',   $task['complexity'],    $complexity],
-                'work_type'     => ['Тип работ',   $task['work_type'],     $work_type],
-                'deadline'      => ['Срок',        $task['deadline'],      $deadline],
-                'estimated_hours' => ['Оценка (ч)', $task['estimated_hours'], $estimated],
+                'title'           => ['Название',      $task['title'],           $title],
+                'department_id'   => ['Отдел',         $task['department_id'],   $department_id],
+                'customer_id'     => ['Заказчик',      $task['customer_id'],     $customer_id],
+                'is_presidency'   => ['Президентство', $task['is_presidency'],   $is_presidency],
+                'priority'        => ['Приоритет',     $task['priority'],        $priority],
+                'complexity'      => ['Сложность',     $task['complexity'],      $complexity],
+                'work_type'       => ['Тип работ',     $task['work_type'],       $work_type],
+                'estimated_hours' => ['Оценка (ч)',    $task['estimated_hours'], $estimated],
+                'date_start'      => ['Дата начала',   $task['date_start'],      $date_start],
+                'date_end'        => ['Дата завершения', $task['date_end'],      $date_end],
             ];
 
             foreach ($fields as $field => [$label, $old, $new]) {
@@ -244,14 +248,14 @@ if (is_numeric($action) && $sub === 'edit') {
                 UPDATE tasks
                 SET title = ?, description = ?, project_id = ?, assignee_id = ?,
                     department_id = ?, customer_id = ?, is_presidency = ?,
-                    priority = ?, complexity = ?, work_type = ?,
-                    deadline = ?, estimated_hours = ?
+                    priority = ?, complexity = ?, work_type = ?, estimated_hours = ?, date_start = ?, date_end = ?
                 WHERE id = ?
             ')->execute([
                 $title, $description, $project_id, $assignee_id,
                 $department_id, $customer_id, $is_presidency,
                 $priority, $complexity, $work_type,
-                $deadline, $estimated, $taskId
+                $estimated, $date_start, $date_end,
+                $taskId
             ]);
 
             db()->prepare('DELETE FROM task_tags WHERE task_id = ?')->execute([$taskId]);
