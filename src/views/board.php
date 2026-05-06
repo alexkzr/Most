@@ -71,7 +71,17 @@ $priorityLabels = [
                             <span class="badge badge-<?= $task['priority'] ?>">
                                 <?= $priorityLabels[$task['priority']] ?>
                             </span>
-
+                            <?php
+                                $workTypeLabels = [
+                                    'new_project' => ['label' => 'Новый проект',      'class' => 'badge-work-new'],
+                                    'improvement' => ['label' => 'Доработка',          'class' => 'badge-work-imp'],
+                                    'bugfix'      => ['label' => 'Исправление ошибки', 'class' => 'badge-work-bug'],
+                                ];
+                                if ($task['work_type'] && isset($workTypeLabels[$task['work_type']])): ?>
+                                    <span class="badge <?= $workTypeLabels[$task['work_type']]['class'] ?>">
+                                        <?= $workTypeLabels[$task['work_type']]['label'] ?>
+                                    </span>
+                                <?php endif; ?>
                             <!-- Теги -->
                             <?php foreach ($task['tags'] as $tag): ?>
                                 <span class="badge badge-tag"><?= htmlspecialchars($tag['name']) ?></span>

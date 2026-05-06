@@ -109,6 +109,15 @@
                     </select>
                 </div>
             </div>
+            <div class="form-group">
+                <label for="work_type">Тип работ</label>
+                <select id="work_type" name="work_type">
+                    <option value="">— не указан —</option>
+                    <option value="new_project" <?= ($_POST['work_type'] ?? '') === 'new_project' ? 'selected' : '' ?>>Новый проект</option>
+                    <option value="improvement" <?= ($_POST['work_type'] ?? '') === 'improvement' ? 'selected' : '' ?>>Доработка</option>
+                    <option value="bugfix"      <?= ($_POST['work_type'] ?? '') === 'bugfix'      ? 'selected' : '' ?>>Исправление ошибки</option>
+                </select>
+            </div>
            <div class="form-group">
                 <label>Сложность</label>
                 <div class="stars-input">

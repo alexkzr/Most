@@ -279,6 +279,24 @@ $activeTab = $_GET['tab'] ?? 'comments';
                     <?php endfor; ?>
                 </span>
             <?php endif; ?>
+            
+            <!-- Тип работ -->
+            <?php if ($task['work_type']): ?>
+            <div class="sidebar-block">
+                <div class="sidebar-label">Тип работ</div>
+                <?php
+                $workTypeLabels = [
+                    'new_project' => ['label' => 'Новый проект',       'class' => 'badge-work-new'],
+                    'improvement' => ['label' => 'Доработка',           'class' => 'badge-work-imp'],
+                    'bugfix'      => ['label' => 'Исправление ошибки',  'class' => 'badge-work-bug'],
+                ];
+                $wt = $workTypeLabels[$task['work_type']] ?? null;
+                ?>
+                <?php if ($wt): ?>
+                    <span class="badge <?= $wt['class'] ?>"><?= $wt['label'] ?></span>
+                <?php endif; ?>
+            </div>
+            <?php endif; ?>
             <!-- Срок -->
             <?php if ($task['deadline']): ?>
             <div class="sidebar-block">

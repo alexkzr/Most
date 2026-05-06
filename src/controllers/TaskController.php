@@ -38,6 +38,7 @@ if ($action === 'create') {
         $deadline      = $_POST['deadline'] ?? null ?: null;
         $estimated     = $_POST['estimated_hours'] ?? null ?: null;
         $complexity    = $_POST['complexity'] ?? null ?: null;
+        $work_type = $_POST['work_type'] ?? null ?: null;
         $selected_tags = $_POST['tags'] ?? [];
 
         if (!$title || !$project_id) {
@@ -45,12 +46,12 @@ if ($action === 'create') {
         } else {
             $stmt = db()->prepare('
                 INSERT INTO tasks
-                    (title, description, project_id, assignee_id, customer, priority, complexity, deadline, estimated_hours, created_by)
+                    (title, description, project_id, assignee_id, customer, priority, complexity, work_type, deadline, estimated_hours, created_by)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ');
             $stmt->execute([
                 $title, $description, $project_id, $assignee_id,
-                $customer, $priority, $complexity, $deadline, $estimated,
+                $customer, $priority, $complexity, $work_type, $deadline, $estimated,
                 $_SESSION['user_id']
             ]);
             $taskId = db()->lastInsertId();
@@ -229,11 +230,11 @@ if (is_numeric($action) && $sub === 'edit') {
             db()->prepare('
                 UPDATE tasks
                 SET title = ?, description = ?, project_id = ?, assignee_id = ?,
-                    customer = ?, priority = ?, complexity = ?, deadline = ?, estimated_hours = ?
+                    customer = ?, priority = ?, complexity = ?, work_type = ?, deadline = ?, estimated_hours = ?
                 WHERE id = ?
             ')->execute([
                 $title, $description, $project_id, $assignee_id,
-                $customer, $priority, $complexity, $deadline, $estimated, $taskId
+                $customer, $priority, $complexity, $work_type, $deadline, $estimated, $taskId
             ]);
 
             db()->prepare('DELETE FROM task_tags WHERE task_id = ?')->execute([$taskId]);

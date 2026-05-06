@@ -104,6 +104,15 @@
                 </div>
             </div>
             <div class="form-group">
+                <label for="work_type">Тип работ</label>
+                <select id="work_type" name="work_type">
+                    <option value="">— не указан —</option>
+                    <option value="new_project" <?= $task['work_type'] === 'new_project' ? 'selected' : '' ?>>Новый проект</option>
+                    <option value="improvement" <?= $task['work_type'] === 'improvement' ? 'selected' : '' ?>>Доработка</option>
+                    <option value="bugfix"      <?= $task['work_type'] === 'bugfix'      ? 'selected' : '' ?>>Исправление ошибки</option>
+                </select>
+            </div>
+            <div class="form-group">
                 <label>Сложность</label>
                 <div class="stars-input">
                     <?php for ($i = 1; $i <= 5; $i++): ?>
