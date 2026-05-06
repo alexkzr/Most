@@ -64,6 +64,9 @@ if ($project_id) {
 
         if (isset($columns[$task['status']])) {
             $columns[$task['status']]['tasks'][] = $task;
+        } elseif ($task['status'] === 'pending_archive') {
+            // Показываем в колонке "Завершено" с пометкой
+            $columns['done']['tasks'][] = $task;
         }
     }
     unset($task);

@@ -123,13 +123,6 @@ document.querySelectorAll('.column-body').forEach(col => {
                 return;
             }
 
-            if (newStatus === 'done') {
-                if (!confirm('Перевести задачу в «Завершено»? Будет запущено архивирование после подтверждения второго администратора.')) {
-                    evt.from.insertBefore(evt.item, evt.from.children[evt.oldIndex] || null);
-                    return;
-                }
-            }
-
             fetch('/tasks/' + taskId + '/move', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
