@@ -45,13 +45,13 @@ if ($project_id) {
         LEFT JOIN users u ON u.id = t.created_by
         WHERE t.project_id = ? AND t.is_archived = 0
         ORDER BY
+            t.is_presidency DESC,
             FIELD(t.priority, "high", "medium", "low"),
             t.created_at ASC
     ');
     $stmt->execute([$project_id]);
     $tasks = $stmt->fetchAll();
 
-    // Теги для каждой задачи
     foreach ($tasks as &$task) {
         $stmt2 = db()->prepare('
             SELECT tg.name, tg.color
@@ -65,7 +65,6 @@ if ($project_id) {
         if (isset($columns[$task['status']])) {
             $columns[$task['status']]['tasks'][] = $task;
         } elseif ($task['status'] === 'pending_archive') {
-            // Показываем в колонке "Завершено" с пометкой
             $columns['done']['tasks'][] = $task;
         }
     }

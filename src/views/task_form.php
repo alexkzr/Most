@@ -119,6 +119,13 @@
                         <?php endforeach; ?>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="is_presidency" value="1"
+                            <?= ($_POST['is_presidency'] ?? '') ? 'checked' : '' ?>>
+                        <span class="checkbox-text">🔴 Задача от Area Presidency</span>
+                    </label>
+                </div>
             </div>
 
                 <div class="form-group">

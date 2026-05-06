@@ -115,7 +115,13 @@
                     </select>
                 </div>
             </div>
-
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="is_presidency" value="1"
+                        <?= $task['is_presidency'] ? 'checked' : '' ?>>
+                    <span class="checkbox-text">🔴 Задача от Area Presidency</span>
+                </label>
+            </div>                   
                 <div class="form-group">
                     <label for="priority">Приоритет</label>
                     <select id="priority" name="priority">
