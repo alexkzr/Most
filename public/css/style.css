@@ -1224,3 +1224,96 @@ a {
 .customers-list {
     padding: 4px 0;
 }
+
+/* ===========================
+   Presidency toggle
+   =========================== */
+
+.presidency-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--bg-secondary);
+}
+
+.presidency-toggle input[type="checkbox"] {
+    display: none;
+}
+
+.presidency-toggle-icon {
+    font-size: 18px;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+}
+
+.presidency-toggle-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: color 0.2s;
+}
+
+.presidency-toggle-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-left: auto;
+    transition: color 0.2s;
+}
+
+.presidency-toggle.active {
+    border-color: #f97316;
+    background: rgba(249, 115, 22, 0.08);
+}
+
+.presidency-toggle.active .presidency-toggle-icon {
+    opacity: 1;
+}
+
+.presidency-toggle.active .presidency-toggle-text {
+    color: #f97316;
+}
+
+.presidency-toggle.active .presidency-toggle-hint {
+    color: #f97316;
+    opacity: 0.7;
+}
+
+/* Карточка с флагом президентства */
+.card-presidency {
+    border-color: #f97316 !important;
+    background: rgba(249, 115, 22, 0.07) !important;
+}
+
+.card-presidency:hover {
+    border-color: #ea6c0a !important;
+    background: rgba(249, 115, 22, 0.12) !important;
+}
+
+.presidency-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #f97316;
+    margin-bottom: 6px;
+}
+
+.presidency-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #f97316;
+    padding: 6px 10px;
+    background: rgba(249, 115, 22, 0.1);
+    border-radius: var(--radius);
+    border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
