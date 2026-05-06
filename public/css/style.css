@@ -1108,3 +1108,73 @@ a {
     background: rgba(255,255,255,0.02);
 }
 
+/* ===========================
+   Звёзды сложности
+   =========================== */
+
+.stars-input {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.stars-input input[type="radio"] {
+    display: none;
+}
+
+.stars-input .star {
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--border);
+    transition: color 0.15s;
+}
+
+/* Подсвечиваем при hover */
+.stars-input .star:hover,
+.stars-input .star:hover ~ .star {
+    color: #fbbf24;
+}
+
+/* Подсвечиваем выбранные */
+.stars-input input:checked ~ .star {
+    color: #fbbf24;
+}
+
+/* Цвета по значению */
+.stars-input input#star1:checked ~ .star { color: #22c55e; }
+.stars-input input#star2:checked ~ .star { color: #22c55e; }
+.stars-input input#star3:checked ~ .star { color: #fbbf24; }
+.stars-input input#star4:checked ~ .star { color: #ef4444; }
+.stars-input input#star5:checked ~ .star { color: #ef4444; }
+
+/* Отображение в просмотре */
+.stars-display {
+    display: flex;
+    gap: 3px;
+}
+
+.star-icon {
+    font-size: 18px;
+    color: var(--border);
+}
+
+.star-icon.active {
+    color: #fbbf24;
+}
+
+/* Цвета активных звёзд по количеству */
+.stars-display:has(.star-icon:nth-child(1).active:not(~ .star-icon.active)) .star-icon.active,
+.stars-display:has(.star-icon:nth-child(2).active) .star-icon.active {
+    color: #22c55e;
+}
+
+/* На карточке */
+.card-complexity {
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+
+.star-on  { color: #fbbf24; }
+.star-off { color: var(--border); }
+

@@ -271,7 +271,14 @@ $activeTab = $_GET['tab'] ?? 'comments';
                     <?= $priorityLabels[$task['priority']] ?>
                 </span>
             </div>
-
+            <!-- Сложность -->
+            <?php if ($task['complexity']): ?>
+                <span class="card-complexity">
+                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                        <span class="<?= $i <= $task['complexity'] ? 'star-on' : 'star-off' ?>">★</span>
+                    <?php endfor; ?>
+                </span>
+            <?php endif; ?>
             <!-- Срок -->
             <?php if ($task['deadline']): ?>
             <div class="sidebar-block">

@@ -103,7 +103,16 @@
                     </select>
                 </div>
             </div>
-
+            <div class="form-group">
+                <label>Сложность</label>
+                <div class="stars-input">
+                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                        <input type="radio" name="complexity" id="star<?= $i ?>" value="<?= $i ?>"
+                            <?= ($task['complexity'] ?? '') == $i ? 'checked' : '' ?>>
+                        <label for="star<?= $i ?>" class="star" data-value="<?= $i ?>">★</label>
+                    <?php endfor; ?>
+                </div>
+            </div>
             <div class="form-row">
                 <div class="form-group">
                     <label for="deadline">Срок</label>

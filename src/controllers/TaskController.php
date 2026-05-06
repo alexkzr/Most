@@ -5,23 +5,11 @@ require_once __DIR__ . '/../../config.php';
 $uri    = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Определяем действие
-// /tasks/create
-// /tasks/123
-// /tasks/123/edit
-// /tasks/123/move
-// /tasks/123/archive
-
 $parts = explode('/', trim($uri, '/'));
-
-// $parts[0] = 'tasks'
-// $parts[1] = 'create' или ID
-// $parts[2] = 'edit', 'move', 'archive' (опционально)
 
 $action = $parts[1] ?? null;
 $sub    = $parts[2] ?? null;
 
-// Вспомогательная функция — логируем изменение в историю
 function logHistory(int $taskId, int $userId, string $action, string $oldValue = '', string $newValue = ''): void {
     $stmt = db()->prepare('
         INSERT INTO history (task_id, user_id, action, old_value, new_value)
@@ -35,21 +23,21 @@ function logHistory(int $taskId, int $userId, string $action, string $oldValue =
 // ===========================
 if ($action === 'create') {
 
-    // Данные для формы
     $projects  = db()->query('SELECT * FROM projects WHERE is_archived = 0 ORDER BY name')->fetchAll();
     $assignees = db()->query('SELECT * FROM assignees ORDER BY name')->fetchAll();
     $tags      = db()->query('SELECT * FROM tags ORDER BY name')->fetchAll();
     $error     = '';
 
     if ($method === 'POST') {
-        $title        = trim($_POST['title'] ?? '');
-        $description  = trim($_POST['description'] ?? '');
-        $project_id   = (int)($_POST['project_id'] ?? 0);
-        $assignee_id  = (int)($_POST['assignee_id'] ?? 0) ?: null;
-        $customer     = trim($_POST['customer'] ?? '');
-        $priority     = $_POST['priority'] ?? 'medium';
-        $deadline     = $_POST['deadline'] ?? null ?: null;
-        $estimated    = $_POST['estimated_hours'] ?? null ?: null;
+        $title         = trim($_POST['title'] ?? '');
+        $description   = trim($_POST['description'] ?? '');
+        $project_id    = (int)($_POST['project_id'] ?? 0);
+        $assignee_id   = (int)($_POST['assignee_id'] ?? 0) ?: null;
+        $customer      = trim($_POST['customer'] ?? '');
+        $priority      = $_POST['priority'] ?? 'medium';
+        $deadline      = $_POST['deadline'] ?? null ?: null;
+        $estimated     = $_POST['estimated_hours'] ?? null ?: null;
+        $complexity    = $_POST['complexity'] ?? null ?: null;
         $selected_tags = $_POST['tags'] ?? [];
 
         if (!$title || !$project_id) {
@@ -57,17 +45,16 @@ if ($action === 'create') {
         } else {
             $stmt = db()->prepare('
                 INSERT INTO tasks
-                    (title, description, project_id, assignee_id, customer, priority, deadline, estimated_hours, created_by)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    (title, description, project_id, assignee_id, customer, priority, complexity, deadline, estimated_hours, created_by)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ');
             $stmt->execute([
                 $title, $description, $project_id, $assignee_id,
-                $customer, $priority, $deadline, $estimated,
+                $customer, $priority, $complexity, $deadline, $estimated,
                 $_SESSION['user_id']
             ]);
             $taskId = db()->lastInsertId();
 
-            // Теги
             if ($selected_tags) {
                 $stmtTag = db()->prepare('INSERT INTO task_tags (task_id, tag_id) VALUES (?, ?)');
                 foreach ($selected_tags as $tagId) {
@@ -75,7 +62,6 @@ if ($action === 'create') {
                 }
             }
 
-            // История
             logHistory($taskId, $_SESSION['user_id'], 'Задача создана', '', $title);
 
             header('Location: /tasks/' . $taskId);
@@ -115,7 +101,6 @@ if (is_numeric($action) && !$sub) {
         exit;
     }
 
-    // Теги задачи
     $stmt2 = db()->prepare('
         SELECT tg.* FROM task_tags tt
         JOIN tags tg ON tg.id = tt.tag_id
@@ -124,7 +109,6 @@ if (is_numeric($action) && !$sub) {
     $stmt2->execute([$taskId]);
     $taskTags = $stmt2->fetchAll();
 
-    // Комментарии
     $stmt3 = db()->prepare('
         SELECT c.*, u.name AS user_name
         FROM comments c
@@ -135,7 +119,6 @@ if (is_numeric($action) && !$sub) {
     $stmt3->execute([$taskId]);
     $comments = $stmt3->fetchAll();
 
-    // Сниппеты кода
     $stmt4 = db()->prepare('
         SELECT cs.*, u.name AS user_name
         FROM code_snippets cs
@@ -146,7 +129,6 @@ if (is_numeric($action) && !$sub) {
     $stmt4->execute([$taskId]);
     $snippets = $stmt4->fetchAll();
 
-    // История
     $stmt5 = db()->prepare('
         SELECT h.*, u.name AS user_name
         FROM history h
@@ -157,7 +139,6 @@ if (is_numeric($action) && !$sub) {
     $stmt5->execute([$taskId]);
     $history = $stmt5->fetchAll();
 
-    // Добавление комментария
     if ($method === 'POST' && isset($_POST['comment'])) {
         $content = trim($_POST['comment']);
         if ($content) {
@@ -169,7 +150,6 @@ if (is_numeric($action) && !$sub) {
         }
     }
 
-    // Добавление сниппета
     if ($method === 'POST' && isset($_POST['snippet_after'])) {
         $desc   = trim($_POST['snippet_desc'] ?? '');
         $before = trim($_POST['snippet_before'] ?? '');
@@ -189,6 +169,7 @@ if (is_numeric($action) && !$sub) {
     require __DIR__ . '/../views/task_view.php';
     exit;
 }
+
 // ===========================
 // РЕДАКТИРОВАНИЕ ЗАДАЧИ
 // ===========================
@@ -209,7 +190,6 @@ if (is_numeric($action) && $sub === 'edit') {
     $assignees = db()->query('SELECT * FROM assignees ORDER BY name')->fetchAll();
     $tags      = db()->query('SELECT * FROM tags ORDER BY name')->fetchAll();
 
-    // Теги задачи
     $stmt2 = db()->prepare('SELECT tag_id FROM task_tags WHERE task_id = ?');
     $stmt2->execute([$taskId]);
     $selectedTags = array_column($stmt2->fetchAll(), 'tag_id');
@@ -225,16 +205,17 @@ if (is_numeric($action) && $sub === 'edit') {
         $priority    = $_POST['priority'] ?? 'medium';
         $deadline    = $_POST['deadline'] ?? null ?: null;
         $estimated   = $_POST['estimated_hours'] ?? null ?: null;
+        $complexity  = $_POST['complexity'] ?? null ?: null;
         $newTags     = $_POST['tags'] ?? [];
 
         if (!$title || !$project_id) {
             $error = 'Заполните название и проект';
         } else {
-            // Логируем изменения
             $fields = [
                 'title'           => ['Название',    $task['title'],           $title],
                 'customer'        => ['Заказчик',     $task['customer'],        $customer],
                 'priority'        => ['Приоритет',    $task['priority'],        $priority],
+                'complexity'      => ['Сложность',    $task['complexity'],      $complexity],
                 'deadline'        => ['Срок',         $task['deadline'],        $deadline],
                 'estimated_hours' => ['Оценка (ч)',   $task['estimated_hours'], $estimated],
             ];
@@ -248,14 +229,13 @@ if (is_numeric($action) && $sub === 'edit') {
             db()->prepare('
                 UPDATE tasks
                 SET title = ?, description = ?, project_id = ?, assignee_id = ?,
-                    customer = ?, priority = ?, deadline = ?, estimated_hours = ?
+                    customer = ?, priority = ?, complexity = ?, deadline = ?, estimated_hours = ?
                 WHERE id = ?
             ')->execute([
                 $title, $description, $project_id, $assignee_id,
-                $customer, $priority, $deadline, $estimated, $taskId
+                $customer, $priority, $complexity, $deadline, $estimated, $taskId
             ]);
 
-            // Обновляем теги
             db()->prepare('DELETE FROM task_tags WHERE task_id = ?')->execute([$taskId]);
             if ($newTags) {
                 $stmtTag = db()->prepare('INSERT INTO task_tags (task_id, tag_id) VALUES (?, ?)');
@@ -271,10 +251,8 @@ if (is_numeric($action) && $sub === 'edit') {
 
     require __DIR__ . '/../views/task_edit.php';
     exit;
-}   
-// ===========================
-// ПЕРЕМЕЩЕНИЕ (смена статуса)
-// ===========================
+}
+
 // ===========================
 // ПЕРЕМЕЩЕНИЕ (смена статуса)
 // ===========================
@@ -311,7 +289,6 @@ if (is_numeric($action) && $sub === 'move' && $method === 'POST') {
             $statusLabels[$newStatus] ?? $newStatus
         );
 
-        // При переводе в "Завершено" — автоматически запускаем архивирование
         if ($newStatus === 'done') {
             db()->prepare('
                 UPDATE tasks
@@ -342,23 +319,19 @@ if (is_numeric($action) && $sub === 'archive' && $method === 'POST') {
 
     if (!$task) { http_response_code(404); exit; }
 
-    // Если уже ожидает архивирования — подтверждаем
     if ($task['status'] === 'pending_archive') {
         if ($task['archive_requested_by'] == $_SESSION['user_id']) {
-            // Тот же пользователь — нельзя
             header('Location: /tasks/' . $taskId . '?error=same_user');
             exit;
         }
-        // Второй пользователь подтверждает
         db()->prepare('UPDATE tasks SET is_archived = 1, status = "done" WHERE id = ?')->execute([$taskId]);
         logHistory($taskId, $_SESSION['user_id'], 'Задача архивирована');
         header('Location: /');
         exit;
     }
 
-    // Первый запрос на архивирование
-    $reason        = $_POST['archive_reason'] ?? 'other';
-    $reasonCustom  = trim($_POST['archive_reason_custom'] ?? '');
+    $reason       = $_POST['archive_reason'] ?? 'other';
+    $reasonCustom = trim($_POST['archive_reason_custom'] ?? '');
 
     db()->prepare('
         UPDATE tasks
