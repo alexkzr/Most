@@ -29,11 +29,10 @@ if ($project_id) {
 
 // Задачи по колонкам
 $columns = [
-    'new'             => ['title' => 'Новые',       'tasks' => []],
-    'in_progress'     => ['title' => 'В работе',    'tasks' => []],
-    'testing'         => ['title' => 'Тестирование','tasks' => []],
-    'done'            => ['title' => 'Готово',       'tasks' => []],
-    'pending_archive' => ['title' => 'В архив',     'tasks' => []],
+    'new'         => ['title' => 'Очередь',      'tasks' => []],
+    'in_progress' => ['title' => 'В работе',     'tasks' => []],
+    'testing'     => ['title' => 'Тестирование', 'tasks' => []],
+    'done'        => ['title' => 'Завершено',     'tasks' => []],
 ];
 
 if ($project_id) {

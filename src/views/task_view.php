@@ -235,9 +235,9 @@ $activeTab = $_GET['tab'] ?? 'comments';
                 <form method="POST" action="/tasks/<?= $task['id'] ?>/move">
                     <select name="status" onchange="this.form.submit()"
                             <?= $task['status'] === 'pending_archive' ? 'disabled' : '' ?>>
-                        <?php foreach (['new','in_progress','testing','done'] as $s): ?>
-                            <option value="<?= $s ?>" <?= $task['status'] === $s ? 'selected' : '' ?>>
-                                <?= $statusLabels[$s] ?>
+                        <?php foreach (['new' => 'Очередь', 'in_progress' => 'В работе', 'testing' => 'Тестирование', 'done' => 'Завершено'] as $s => $label): ?>
+                            <option value="<?= $s ?>" <?= $task['status'] === $s || ($task['status'] === 'pending_archive' && $s === 'done') ? 'selected' : '' ?>>
+                                <?= $label ?>
                             </option>
                         <?php endforeach; ?>
                     </select>

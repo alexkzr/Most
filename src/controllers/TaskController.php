@@ -275,6 +275,9 @@ if (is_numeric($action) && $sub === 'edit') {
 // ===========================
 // ПЕРЕМЕЩЕНИЕ (смена статуса)
 // ===========================
+// ===========================
+// ПЕРЕМЕЩЕНИЕ (смена статуса)
+// ===========================
 if (is_numeric($action) && $sub === 'move' && $method === 'POST') {
     $taskId    = (int)$action;
     $newStatus = $_POST['status'] ?? '';
@@ -285,18 +288,21 @@ if (is_numeric($action) && $sub === 'move' && $method === 'POST') {
         exit;
     }
 
-    $stmt = db()->prepare('SELECT status FROM tasks WHERE id = ?');
+    $stmt = db()->prepare('SELECT * FROM tasks WHERE id = ?');
     $stmt->execute([$taskId]);
     $task = $stmt->fetch();
 
     if ($task) {
         $statusLabels = [
-            'new'         => 'Новые',
+            'new'         => 'Очередь',
             'in_progress' => 'В работе',
             'testing'     => 'Тестирование',
-            'done'        => 'Готово',
+            'done'        => 'Завершено',
         ];
-        db()->prepare('UPDATE tasks SET status = ? WHERE id = ?')->execute([$newStatus, $taskId]);
+
+        db()->prepare('UPDATE tasks SET status = ? WHERE id = ?')
+            ->execute([$newStatus, $taskId]);
+
         logHistory(
             $taskId,
             $_SESSION['user_id'],
@@ -304,6 +310,20 @@ if (is_numeric($action) && $sub === 'move' && $method === 'POST') {
             $statusLabels[$task['status']] ?? $task['status'],
             $statusLabels[$newStatus] ?? $newStatus
         );
+
+        // При переводе в "Завершено" — автоматически запускаем архивирование
+        if ($newStatus === 'done') {
+            db()->prepare('
+                UPDATE tasks
+                SET status = "pending_archive",
+                    archive_requested_by = ?,
+                    archive_reason = "done",
+                    archive_reason_custom = NULL
+                WHERE id = ?
+            ')->execute([$_SESSION['user_id'], $taskId]);
+
+            logHistory($taskId, $_SESSION['user_id'], 'Запрошено архивирование', '', 'Завершена');
+        }
     }
 
     header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '/'));

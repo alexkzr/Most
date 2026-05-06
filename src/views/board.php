@@ -121,9 +121,36 @@ columns.forEach(col => {
             const newStatus = evt.to.closest('.column').dataset.status;
 
             // Не даём перетаскивать в pending_archive руками
-            if (newStatus === 'pending_archive') {
-                evt.from.insertBefore(evt.item, evt.from.children[evt.oldIndex]);
-                return;
+            onEnd: function(evt) {
+                const taskId    = evt.item.dataset.taskId;
+                const newStatus = evt.to.closest('.column').dataset.status;
+
+                if (newStatus === 'pending_archive') {
+                    evt.from.insertBefore(evt.item, evt.from.children[evt.oldIndex]);
+                    return;
+                }
+
+                // При переводе в Завершено — предупреждаем
+                if (newStatus === 'done') {
+                    if (!confirm('Перевести задачу в «Завершено»? Будет запущено архивирование после подтверждения второго администратора.')) {
+                        evt.from.insertBefore(evt.item, evt.from.children[evt.oldIndex] || null);
+                        return;
+                    }
+                }
+
+                fetch('/tasks/' + taskId + '/move', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'status=' + encodeURIComponent(newStatus)
+                }).then(r => {
+                    if (!r.ok) {
+                        evt.from.insertBefore(evt.item, evt.from.children[evt.oldIndex]);
+                    }
+                    document.querySelectorAll('.column').forEach(c => {
+                        const count = c.querySelector('.column-body').children.length;
+                        c.querySelector('.column-count').textContent = count;
+                    });
+                });
             }
 
             fetch('/tasks/' + taskId + '/move', {
