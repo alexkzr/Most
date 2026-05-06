@@ -20,10 +20,7 @@ $priorityLabels = [
 <header class="header">
     <div style="display:flex;align-items:center;gap:24px">
         <div class="header-logo">Most</div>
-        <div class="view-switcher">
-            <a href="/?project=<?= $project_id ?>" class="view-btn active" title="Канбан">⊞</a>
-            <a href="/?view=list&project=<?= $project_id ?>" class="view-btn" title="Список">☰</a>
-        </div>
+
         <!-- Переключатель проектов -->
         <div class="project-switcher">
             <?php foreach ($projects as $p): ?>
@@ -42,7 +39,10 @@ $priorityLabels = [
         <div class="header-stat">Тестирование <span><?= $stats['testing'] ?? 0 ?></span></div>
         <div class="header-stat">Завершено <span><?= $stats['done'] ?? 0 ?></span></div>
     </div>
-
+    <div class="view-switcher">
+        <a href="/?project=<?= $project_id ?>" class="view-btn active" title="Канбан">⊞</a>
+        <a href="/?view=list&project=<?= $project_id ?>" class="view-btn" title="Список">☰</a>
+    </div>
     <!-- Навигация -->
     <div class="header-nav">
         <a href="/tasks/create" class="btn btn-primary">+ Задача</a>
