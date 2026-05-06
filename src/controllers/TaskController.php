@@ -50,7 +50,7 @@ if ($action === 'create') {
             $stmt = db()->prepare('
                 INSERT INTO tasks
                     (title, description, project_id, assignee_id, department_id, customer_id, priority, complexity, work_type, deadline, estimated_hours, created_by)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ');
             $stmt->execute([
                 $title, $description, $project_id, $assignee_id,
@@ -193,6 +193,8 @@ if (is_numeric($action) && $sub === 'edit') {
     $projects  = db()->query('SELECT * FROM projects WHERE is_archived = 0 ORDER BY name')->fetchAll();
     $assignees = db()->query('SELECT * FROM assignees ORDER BY name')->fetchAll();
     $tags      = db()->query('SELECT * FROM tags ORDER BY name')->fetchAll();
+    $departments   = db()->query('SELECT * FROM departments ORDER BY name')->fetchAll();
+    $customers_all = db()->query('SELECT * FROM customers ORDER BY name')->fetchAll();
 
     $stmt2 = db()->prepare('SELECT tag_id FROM task_tags WHERE task_id = ?');
     $stmt2->execute([$taskId]);
