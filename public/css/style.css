@@ -1388,3 +1388,113 @@ a {
     color: var(--text);
 }
 
+/* ===========================
+   Переключатель вида
+   =========================== */
+
+.view-switcher {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.view-btn {
+    padding: 6px 12px;
+    font-size: 16px;
+    color: var(--text-muted);
+    background: var(--bg-secondary);
+    transition: all 0.2s;
+    line-height: 1;
+}
+
+.view-btn:hover {
+    color: var(--text);
+    background: var(--bg-card);
+}
+
+.view-btn.active {
+    color: var(--text);
+    background: var(--bg-card);
+    border-right: 1px solid var(--border);
+}
+
+/* ===========================
+   Списочный вид
+   =========================== */
+
+.list-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.list-table thead tr {
+    background: var(--bg-secondary);
+    border-bottom: 2px solid var(--border);
+}
+
+.list-table thead th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.list-row {
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.list-row:hover {
+    background: var(--bg-secondary);
+}
+
+.list-row td {
+    padding: 12px 14px;
+    vertical-align: middle;
+}
+
+.list-title {
+    font-weight: 500;
+    color: var(--text);
+    max-width: 400px;
+}
+
+.list-meta {
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.list-dept {
+    display: block;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+}
+
+.list-stars {
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+.row-presidency {
+    background: rgba(249, 115, 22, 0.05);
+}
+
+.row-presidency:hover {
+    background: rgba(249, 115, 22, 0.1) !important;
+}
+
+/* Статусы в списке */
+.badge-status-new             { background: rgba(107,114,128,0.15); color: #9ca3af; }
+.badge-status-in_progress     { background: rgba(79,110,247,0.15);  color: #818cf8; }
+.badge-status-testing         { background: rgba(245,158,11,0.15);  color: #fcd34d; }
+.badge-status-done            { background: rgba(34,197,94,0.15);   color: #86efac; }
+.badge-status-pending_archive { background: rgba(239,68,68,0.15);   color: #fca5a5; }
+

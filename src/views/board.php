@@ -20,7 +20,10 @@ $priorityLabels = [
 <header class="header">
     <div style="display:flex;align-items:center;gap:24px">
         <div class="header-logo">Most</div>
-
+        <div class="view-switcher">
+            <a href="/?project=<?= $project_id ?>" class="view-btn active" title="Канбан">⊞</a>
+            <a href="/?view=list&project=<?= $project_id ?>" class="view-btn" title="Список">☰</a>
+        </div>
         <!-- Переключатель проектов -->
         <div class="project-switcher">
             <?php foreach ($projects as $p): ?>

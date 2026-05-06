@@ -25,7 +25,9 @@ match(true) {
     $uri === '/logout'                       => require __DIR__ . '/src/controllers/AuthController.php',
 
     // Канбан (главная)
-    $uri === '' || $uri === '/'             => require __DIR__ . '/src/controllers/BoardController.php',
+    // Главная — канбан или список
+    ($uri === '' || $uri === '/') && ($_GET['view'] ?? 'board') === 'board' => require __DIR__ . '/src/controllers/BoardController.php',
+    ($uri === '' || $uri === '/') && ($_GET['view'] ?? '') === 'list'       => require __DIR__ . '/src/controllers/ListController.php',
 
     // Задачи
     str_starts_with($uri, '/tasks')         => require __DIR__ . '/src/controllers/TaskController.php',
