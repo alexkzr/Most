@@ -1337,3 +1337,54 @@ a {
     font-size: 14px;
     font-weight: 500;
 }
+
+/* ===========================
+   Спойлер описания
+   =========================== */
+
+.desc-spoiler-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: all 0.2s;
+    margin-bottom: 0;
+}
+
+.desc-spoiler-toggle:hover {
+    color: var(--text);
+    border-color: var(--accent);
+}
+
+.desc-spoiler-icon {
+    font-size: 10px;
+    transition: transform 0.2s;
+}
+
+.desc-spoiler-body {
+    display: none;
+    margin-top: 8px;
+}
+
+.desc-spoiler.open .desc-spoiler-body {
+    display: block;
+}
+
+.desc-spoiler.open .desc-spoiler-icon {
+    transform: rotate(90deg);
+}
+
+.desc-spoiler.open .desc-spoiler-toggle {
+    border-color: var(--accent);
+    color: var(--text);
+}
+

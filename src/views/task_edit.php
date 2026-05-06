@@ -24,6 +24,7 @@
     <form method="POST" action="/tasks/<?= $task['id'] ?>/edit">
         <div class="form-card">
 
+            <!-- Название -->
             <div class="form-group">
                 <label for="title">Название <span class="required">*</span></label>
                 <input type="text" id="title" name="title"
@@ -32,31 +33,32 @@
 
             <!-- Описание -->
             <div class="form-group">
-                <label>Описание</label>
-                <div class="desc-editor">
-
-                    <!-- Режим ввода -->
-                    <div id="desc-input-mode">
-                        <textarea id="desc-textarea" rows="10"
-                                  placeholder="Вставьте текст или HTML из Битрикса..."></textarea>
-                        <div class="desc-actions">
-                            <button type="button" id="ai-format-btn" class="btn btn-ghost btn-sm">
-                                <span id="ai-btn-text">✨ Отформатировать через ИИ</span>
-                            </button>
+                <div class="desc-spoiler" id="desc-spoiler-edit">
+                    <button type="button" class="desc-spoiler-toggle" onclick="this.closest('.desc-spoiler').classList.toggle('open')">
+                        <span class="desc-spoiler-icon">▶</span>
+                        <span>Описание задачи</span>
+                    </button>
+                    <div class="desc-spoiler-body">
+                        <div class="desc-editor">
+                            <div id="desc-input-mode">
+                                <textarea id="desc-textarea" rows="10"
+                                          placeholder="Вставьте текст или HTML из Битрикса..."></textarea>
+                                <div class="desc-actions">
+                                    <button type="button" id="ai-format-btn" class="btn btn-ghost btn-sm">
+                                        <span id="ai-btn-text">✨ Отформатировать через ИИ</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="desc-preview-mode" style="display:none">
+                                <div id="desc-preview" class="desc-preview"></div>
+                                <div class="desc-actions">
+                                    <button type="button" id="desc-edit-btn" class="btn btn-ghost btn-sm">✏️ Редактировать снова</button>
+                                </div>
+                            </div>
+                            <input type="hidden" name="description" id="desc-hidden"
+                                   value="<?= htmlspecialchars($task['description'] ?? '') ?>">
                         </div>
                     </div>
-
-                    <!-- Режим предпросмотра -->
-                    <div id="desc-preview-mode" style="display:none">
-                        <div id="desc-preview" class="desc-preview"></div>
-                        <div class="desc-actions">
-                            <button type="button" id="desc-edit-btn" class="btn btn-ghost btn-sm">✏️ Редактировать снова</button>
-                        </div>
-                    </div>
-
-                    <!-- Скрытый input — уходит в БД -->
-                    <input type="hidden" name="description" id="desc-hidden"
-                           value="<?= htmlspecialchars($task['description'] ?? '') ?>">
                 </div>
             </div>
 
@@ -115,13 +117,16 @@
                     </select>
                 </div>
             </div>
+
             <div class="form-group">
                 <label class="checkbox-label">
                     <input type="checkbox" name="is_presidency" value="1"
                         <?= $task['is_presidency'] ? 'checked' : '' ?>>
                     <span class="checkbox-text">🔴 Задача от Area Presidency</span>
                 </label>
-            </div>                   
+            </div>
+
+            <div class="form-row">
                 <div class="form-group">
                     <label for="priority">Приоритет</label>
                     <select id="priority" name="priority">
@@ -130,16 +135,18 @@
                         <option value="low"    <?= $task['priority'] === 'low'    ? 'selected' : '' ?>>Низкий</option>
                     </select>
                 </div>
+
+                <div class="form-group">
+                    <label for="work_type">Тип работ</label>
+                    <select id="work_type" name="work_type">
+                        <option value="">— не указан —</option>
+                        <option value="new_project" <?= $task['work_type'] === 'new_project' ? 'selected' : '' ?>>Новый проект</option>
+                        <option value="improvement" <?= $task['work_type'] === 'improvement' ? 'selected' : '' ?>>Доработка</option>
+                        <option value="bugfix"      <?= $task['work_type'] === 'bugfix'      ? 'selected' : '' ?>>Исправление ошибки</option>
+                    </select>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="work_type">Тип работ</label>
-                <select id="work_type" name="work_type">
-                    <option value="">— не указан —</option>
-                    <option value="new_project" <?= $task['work_type'] === 'new_project' ? 'selected' : '' ?>>Новый проект</option>
-                    <option value="improvement" <?= $task['work_type'] === 'improvement' ? 'selected' : '' ?>>Доработка</option>
-                    <option value="bugfix"      <?= $task['work_type'] === 'bugfix'      ? 'selected' : '' ?>>Исправление ошибки</option>
-                </select>
-            </div>
+
             <div class="form-group">
                 <label>Сложность</label>
                 <div class="stars-input">
@@ -150,6 +157,7 @@
                     <?php endfor; ?>
                 </div>
             </div>
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="deadline">Срок</label>
@@ -198,22 +206,20 @@ const previewMode = document.getElementById('desc-preview-mode');
 const preview     = document.getElementById('desc-preview');
 const hiddenInput = document.getElementById('desc-hidden');
 
-// Если есть сохранённое описание — показываем предпросмотр
 const existing = hiddenInput.value.trim();
 if (existing) {
     preview.innerHTML         = existing;
     inputMode.style.display   = 'none';
     previewMode.style.display = 'block';
+    document.getElementById('desc-spoiler-edit').classList.add('open');
 }
 
-// Кнопка "Редактировать снова"
 document.getElementById('desc-edit-btn').addEventListener('click', function() {
     previewMode.style.display = 'none';
     inputMode.style.display   = 'block';
     textarea.value = hiddenInput.value;
 });
 
-// ИИ форматирование
 document.getElementById('ai-format-btn').addEventListener('click', async function() {
     const text = textarea.value.trim();
     if (!text) { alert('Сначала введите текст'); return; }
@@ -230,7 +236,6 @@ document.getElementById('ai-format-btn').addEventListener('click', async functio
             body: JSON.stringify({ text: text })
         });
         const data = await res.json();
-
         if (data.html) {
             hiddenInput.value         = data.html;
             preview.innerHTML         = data.html;
@@ -247,14 +252,12 @@ document.getElementById('ai-format-btn').addEventListener('click', async functio
     }
 });
 
-// Перед сабмитом — если остались в режиме ввода, берём текст из textarea
 document.querySelector('form').addEventListener('submit', function() {
     if (inputMode.style.display !== 'none') {
         hiddenInput.value = textarea.value;
     }
 });
-</script>
-<script>
+
 function filterCustomers(deptId) {
     const select  = document.getElementById('customer_id');
     const options = select.querySelectorAll('option');
@@ -265,9 +268,9 @@ function filterCustomers(deptId) {
     select.value = '';
 }
 
-// При загрузке — фильтруем если уже выбран отдел
 const deptSelect = document.getElementById('department_id');
 if (deptSelect.value) filterCustomers(deptSelect.value);
 </script>
+
 </body>
 </html>

@@ -86,8 +86,16 @@ $activeTab = $_GET['tab'] ?? 'comments';
             <h1 class="task-title"><?= htmlspecialchars($task['title']) ?></h1>
 
         <?php if ($task['description']): ?>
-            <div class="desc-preview">
-                <?= $task['description'] ?>
+            <div class="desc-spoiler">
+                <button type="button" class="desc-spoiler-toggle" onclick="this.closest('.desc-spoiler').classList.toggle('open')">
+                    <span class="desc-spoiler-icon">▶</span>
+                    <span>Описание задачи</span>
+                </button>
+                <div class="desc-spoiler-body">
+                    <div class="desc-preview">
+                        <?= $task['description'] ?>
+                    </div>
+                </div>
             </div>
         <?php endif; ?>
 
