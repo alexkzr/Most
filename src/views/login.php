@@ -12,6 +12,7 @@
     <?php endif; ?>
 
     <form method="POST" action="/login">
+        <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
         <div class="form-group">
             <label for="login">Логин</label>
             <input

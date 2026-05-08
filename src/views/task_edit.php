@@ -22,6 +22,7 @@
     <?php endif; ?>
 
     <form method="POST" action="/tasks/<?= $task['id'] ?>/edit">
+        <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
         <div class="form-card">
 
             <!-- Название -->

@@ -2,16 +2,23 @@
 
 require_once __DIR__ . '/config.php';
 
-// Запускаем сессию
+// ─── Безопасные настройки сессии ─────────────────────────────────────────────
+// Настраиваем ДО session_start()
+ini_set('session.cookie_httponly', '1');   // JS не может читать куки — защита от XSS
+ini_set('session.cookie_secure',   '1');   // Только по HTTPS
+ini_set('session.cookie_samesite', 'Strict'); // Защита от CSRF через куки
+ini_set('session.use_strict_mode', '1');   // Запрет принятия чужих session ID
+ini_set('session.gc_maxlifetime',  '28800'); // Сессия живёт максимум 8 часов
+
 session_name(SESSION_NAME);
 session_start();
 
-// Простой роутер
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$uri = rtrim($uri, '/');
+// ─── Роутер ───────────────────────────────────────────────────────────────────
+$uri    = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$uri    = rtrim($uri, '/');
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Если не авторизован — только страница логина доступна
+// Если не авторизован — только страница логина
 if (!isset($_SESSION['user_id']) && $uri !== '/login') {
     header('Location: /login');
     exit;
@@ -20,25 +27,25 @@ if (!isset($_SESSION['user_id']) && $uri !== '/login') {
 // Роутинг
 match(true) {
     // Авторизация
-    $uri === '/login' && $method === 'GET'  => require __DIR__ . '/src/controllers/AuthController.php',
-    $uri === '/login' && $method === 'POST' => require __DIR__ . '/src/controllers/AuthController.php',
-    $uri === '/logout'                       => require __DIR__ . '/src/controllers/AuthController.php',
+    $uri === '/login'  => require __DIR__ . '/src/controllers/AuthController.php',
+    $uri === '/logout' => require __DIR__ . '/src/controllers/AuthController.php',
 
-    // Канбан (главная)
     // Главная — канбан или список
     ($uri === '' || $uri === '/') && ($_GET['view'] ?? 'board') === 'board' => require __DIR__ . '/src/controllers/BoardController.php',
     ($uri === '' || $uri === '/') && ($_GET['view'] ?? '') === 'list'       => require __DIR__ . '/src/controllers/ListController.php',
 
     // Задачи
-    str_starts_with($uri, '/tasks')         => require __DIR__ . '/src/controllers/TaskController.php',
+    str_starts_with($uri, '/tasks') => require __DIR__ . '/src/controllers/TaskController.php',
 
     // Архив
-    $uri === '/archive'                     => require __DIR__ . '/src/controllers/ArchiveController.php',
+    $uri === '/archive' => require __DIR__ . '/src/controllers/ArchiveController.php',
 
     // Настройки
-    $uri === '/settings'                    => require __DIR__ . '/src/controllers/SettingsController.php',
+    $uri === '/settings' => require __DIR__ . '/src/controllers/SettingsController.php',
+
     // API
-    str_starts_with($uri, '/api')  => require __DIR__ . '/src/controllers/ApiController.php',
+    str_starts_with($uri, '/api') => require __DIR__ . '/src/controllers/ApiController.php',
+
     // 404
     default => (function() {
         http_response_code(404);

@@ -5,8 +5,7 @@ require_once __DIR__ . '/../../config.php';
 $uri    = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
 
-$parts = explode('/', trim($uri, '/'));
-
+$parts  = explode('/', trim($uri, '/'));
 $action = $parts[1] ?? null;
 $sub    = $parts[2] ?? null;
 
@@ -31,28 +30,32 @@ if ($action === 'create') {
     $error         = '';
 
     if ($method === 'POST') {
+        csrfVerify(); // ← CSRF-защита
+
         $title         = trim($_POST['title'] ?? '');
-        $description   = trim($_POST['description'] ?? '');
+        $description   = sanitizeHtml(trim($_POST['description'] ?? '')); // ← очищаем HTML
         $project_id    = (int)($_POST['project_id'] ?? 0);
         $assignee_id   = (int)($_POST['assignee_id'] ?? 0) ?: null;
         $department_id = (int)($_POST['department_id'] ?? 0) ?: null;
         $customer_id   = (int)($_POST['customer_id'] ?? 0) ?: null;
         $is_presidency = isset($_POST['is_presidency']) ? 1 : 0;
-        $priority      = $_POST['priority'] ?? 'medium';
-        $estimated     = $_POST['estimated_hours'] ?? null ?: null;
-        $complexity    = $_POST['complexity'] ?? null ?: null;
-        $work_type     = $_POST['work_type'] ?? null ?: null;
-        $date_start    = $_POST['date_start'] ?? null ?: null;
-        $date_end      = $_POST['date_end'] ?? null ?: null;
-        $selected_tags = $_POST['tags'] ?? [];
+        $priority      = in_array($_POST['priority'] ?? '', ['high','medium','low']) ? $_POST['priority'] : 'medium';
+        $estimated     = is_numeric($_POST['estimated_hours'] ?? '') ? (float)$_POST['estimated_hours'] : null;
+        $complexity    = in_array((int)($_POST['complexity'] ?? 0), [1,2,3,4,5]) ? (int)$_POST['complexity'] : null;
+        $work_type     = in_array($_POST['work_type'] ?? '', ['new_project','improvement','bugfix']) ? $_POST['work_type'] : null;
+        $date_start    = preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['date_start'] ?? '') ? $_POST['date_start'] : null;
+        $date_end      = preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['date_end']   ?? '') ? $_POST['date_end']   : null;
+        $selected_tags = array_map('intval', $_POST['tags'] ?? []);
 
         if (!$title || !$project_id) {
             $error = 'Заполните название и проект';
         } else {
             $stmt = db()->prepare('
                 INSERT INTO tasks
-                    (title, description, project_id, assignee_id, department_id, customer_id, is_presidency, priority, complexity, work_type, estimated_hours, date_start, date_end, created_by)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    (title, description, project_id, assignee_id, department_id, customer_id,
+                     is_presidency, priority, complexity, work_type, estimated_hours,
+                     date_start, date_end, created_by)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ');
             $stmt->execute([
                 $title, $description, $project_id, $assignee_id,
@@ -66,7 +69,7 @@ if ($action === 'create') {
             if ($selected_tags) {
                 $stmtTag = db()->prepare('INSERT INTO task_tags (task_id, tag_id) VALUES (?, ?)');
                 foreach ($selected_tags as $tagId) {
-                    $stmtTag->execute([$taskId, (int)$tagId]);
+                    $stmtTag->execute([$taskId, $tagId]);
                 }
             }
 
@@ -148,6 +151,7 @@ if (is_numeric($action) && !$sub) {
     $history = $stmt5->fetchAll();
 
     if ($method === 'POST' && isset($_POST['comment'])) {
+        csrfVerify(); // ← CSRF-защита
         $content = trim($_POST['comment']);
         if ($content) {
             $stmt = db()->prepare('INSERT INTO comments (task_id, user_id, content) VALUES (?, ?, ?)');
@@ -159,7 +163,8 @@ if (is_numeric($action) && !$sub) {
     }
 
     if ($method === 'POST' && isset($_POST['snippet_after'])) {
-        $desc   = trim($_POST['snippet_desc'] ?? '');
+        csrfVerify(); // ← CSRF-защита
+        $desc   = trim($_POST['snippet_desc']   ?? '');
         $before = trim($_POST['snippet_before'] ?? '');
         $after  = trim($_POST['snippet_after']);
         if ($after) {
@@ -207,38 +212,40 @@ if (is_numeric($action) && $sub === 'edit') {
     $error = '';
 
     if ($method === 'POST') {
+        csrfVerify(); // ← CSRF-защита
+
         $title         = trim($_POST['title'] ?? '');
-        $description   = trim($_POST['description'] ?? '');
+        $description   = sanitizeHtml(trim($_POST['description'] ?? '')); // ← очищаем HTML
         $project_id    = (int)($_POST['project_id'] ?? 0);
         $assignee_id   = (int)($_POST['assignee_id'] ?? 0) ?: null;
         $department_id = (int)($_POST['department_id'] ?? 0) ?: null;
         $customer_id   = (int)($_POST['customer_id'] ?? 0) ?: null;
         $is_presidency = isset($_POST['is_presidency']) ? 1 : 0;
-        $priority      = $_POST['priority'] ?? 'medium';
-        $estimated     = $_POST['estimated_hours'] ?? null ?: null;
-        $complexity    = $_POST['complexity'] ?? null ?: null;
-        $work_type     = $_POST['work_type'] ?? null ?: null;
-        $date_start    = $_POST['date_start'] ?? null ?: null;
-        $date_end      = $_POST['date_end'] ?? null ?: null;
-        $newTags       = $_POST['tags'] ?? [];
+        $priority      = in_array($_POST['priority'] ?? '', ['high','medium','low']) ? $_POST['priority'] : 'medium';
+        $estimated     = is_numeric($_POST['estimated_hours'] ?? '') ? (float)$_POST['estimated_hours'] : null;
+        $complexity    = in_array((int)($_POST['complexity'] ?? 0), [1,2,3,4,5]) ? (int)$_POST['complexity'] : null;
+        $work_type     = in_array($_POST['work_type'] ?? '', ['new_project','improvement','bugfix']) ? $_POST['work_type'] : null;
+        $date_start    = preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['date_start'] ?? '') ? $_POST['date_start'] : null;
+        $date_end      = preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['date_end']   ?? '') ? $_POST['date_end']   : null;
+        $newTags       = array_map('intval', $_POST['tags'] ?? []);
 
         if (!$title || !$project_id) {
             $error = 'Заполните название и проект';
         } else {
             $fields = [
-                'title'           => ['Название',      $task['title'],           $title],
-                'department_id'   => ['Отдел',         $task['department_id'],   $department_id],
-                'customer_id'     => ['Заказчик',      $task['customer_id'],     $customer_id],
-                'is_presidency'   => ['Президентство', $task['is_presidency'],   $is_presidency],
-                'priority'        => ['Приоритет',     $task['priority'],        $priority],
-                'complexity'      => ['Сложность',     $task['complexity'],      $complexity],
-                'work_type'       => ['Тип работ',     $task['work_type'],       $work_type],
-                'estimated_hours' => ['Оценка (ч)',    $task['estimated_hours'], $estimated],
-                'date_start'      => ['Дата начала',   $task['date_start'],      $date_start],
-                'date_end'        => ['Дата завершения', $task['date_end'],      $date_end],
+                'title'           => ['Название',        $task['title'],           $title],
+                'department_id'   => ['Отдел',           $task['department_id'],   $department_id],
+                'customer_id'     => ['Заказчик',        $task['customer_id'],     $customer_id],
+                'is_presidency'   => ['Президентство',   $task['is_presidency'],   $is_presidency],
+                'priority'        => ['Приоритет',       $task['priority'],        $priority],
+                'complexity'      => ['Сложность',       $task['complexity'],      $complexity],
+                'work_type'       => ['Тип работ',       $task['work_type'],       $work_type],
+                'estimated_hours' => ['Оценка (ч)',      $task['estimated_hours'], $estimated],
+                'date_start'      => ['Дата начала',     $task['date_start'],      $date_start],
+                'date_end'        => ['Дата завершения', $task['date_end'],        $date_end],
             ];
 
-            foreach ($fields as $field => [$label, $old, $new]) {
+            foreach ($fields as [$label, $old, $new]) {
                 if ((string)$old !== (string)$new) {
                     logHistory($taskId, $_SESSION['user_id'], "Изменено: $label", (string)$old, (string)$new);
                 }
@@ -262,7 +269,7 @@ if (is_numeric($action) && $sub === 'edit') {
             if ($newTags) {
                 $stmtTag = db()->prepare('INSERT INTO task_tags (task_id, tag_id) VALUES (?, ?)');
                 foreach ($newTags as $tagId) {
-                    $stmtTag->execute([$taskId, (int)$tagId]);
+                    $stmtTag->execute([$taskId, $tagId]);
                 }
             }
 
@@ -279,6 +286,8 @@ if (is_numeric($action) && $sub === 'edit') {
 // ПЕРЕМЕЩЕНИЕ (смена статуса)
 // ===========================
 if (is_numeric($action) && $sub === 'move' && $method === 'POST') {
+    csrfVerify(); // ← CSRF-защита
+
     $taskId    = (int)$action;
     $newStatus = $_POST['status'] ?? '';
 
@@ -325,14 +334,16 @@ if (is_numeric($action) && $sub === 'move' && $method === 'POST') {
         }
     }
 
-    header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '/'));
-    exit;
+    // Используем safeRedirect вместо прямого header с HTTP_REFERER
+    safeRedirect($_SERVER['HTTP_REFERER'] ?? '/');
 }
 
 // ===========================
 // АРХИВИРОВАНИЕ
 // ===========================
 if (is_numeric($action) && $sub === 'archive' && $method === 'POST') {
+    csrfVerify(); // ← CSRF-защита
+
     $taskId = (int)$action;
 
     $stmt = db()->prepare('SELECT * FROM tasks WHERE id = ?');
@@ -352,8 +363,9 @@ if (is_numeric($action) && $sub === 'archive' && $method === 'POST') {
         exit;
     }
 
-    $reason       = $_POST['archive_reason'] ?? 'other';
-    $reasonCustom = trim($_POST['archive_reason_custom'] ?? '');
+    $allowedReasons = ['done', 'irrelevant', 'rejected', 'duplicate', 'other'];
+    $reason         = in_array($_POST['archive_reason'] ?? '', $allowedReasons) ? $_POST['archive_reason'] : 'other';
+    $reasonCustom   = mb_substr(trim($_POST['archive_reason_custom'] ?? ''), 0, 500);
 
     db()->prepare('
         UPDATE tasks
@@ -373,6 +385,8 @@ if (is_numeric($action) && $sub === 'archive' && $method === 'POST') {
 // ОТМЕНА АРХИВИРОВАНИЯ
 // ===========================
 if (is_numeric($action) && $sub === 'unarchive' && $method === 'POST') {
+    csrfVerify(); // ← CSRF-защита
+
     $taskId = (int)$action;
     db()->prepare('
         UPDATE tasks

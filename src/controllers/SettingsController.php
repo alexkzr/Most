@@ -3,17 +3,20 @@
 require_once __DIR__ . '/../../config.php';
 
 $method  = $_SERVER['REQUEST_METHOD'];
-$action  = $_GET['action'] ?? null;
 $success = $_GET['success'] ?? null;
 $error   = '';
+
+// Все POST-запросы проходят CSRF-проверку
+if ($method === 'POST') {
+    csrfVerify();
+}
 
 // ===========================
 // ПРОЕКТЫ
 // ===========================
 
-// Добавить проект
-if ($method === 'POST' && $_POST['form'] === 'add_project') {
-    $name = trim($_POST['name'] ?? '');
+if ($method === 'POST' && ($_POST['form'] ?? '') === 'add_project') {
+    $name = mb_substr(trim($_POST['name'] ?? ''), 0, 255);
     if ($name) {
         db()->prepare('INSERT INTO projects (name) VALUES (?)')->execute([$name]);
         header('Location: /settings?success=project_added');
@@ -23,10 +26,9 @@ if ($method === 'POST' && $_POST['form'] === 'add_project') {
     }
 }
 
-// Переименовать проект
-if ($method === 'POST' && $_POST['form'] === 'rename_project') {
+if ($method === 'POST' && ($_POST['form'] ?? '') === 'rename_project') {
     $id   = (int)$_POST['id'];
-    $name = trim($_POST['name'] ?? '');
+    $name = mb_substr(trim($_POST['name'] ?? ''), 0, 255);
     if ($id && $name) {
         db()->prepare('UPDATE projects SET name = ? WHERE id = ?')->execute([$name, $id]);
         header('Location: /settings?success=project_renamed');
@@ -34,10 +36,9 @@ if ($method === 'POST' && $_POST['form'] === 'rename_project') {
     }
 }
 
-// Архивировать/разархивировать проект
-if ($method === 'POST' && $_POST['form'] === 'toggle_project') {
+if ($method === 'POST' && ($_POST['form'] ?? '') === 'toggle_project') {
     $id  = (int)$_POST['id'];
-    $val = (int)$_POST['archived'];
+    $val = (int)(bool)$_POST['archived']; // строго 0 или 1
     db()->prepare('UPDATE projects SET is_archived = ? WHERE id = ?')->execute([$val, $id]);
     header('Location: /settings?success=project_updated');
     exit;
@@ -47,10 +48,9 @@ if ($method === 'POST' && $_POST['form'] === 'toggle_project') {
 // ТЕГИ
 // ===========================
 
-// Добавить тег
-if ($method === 'POST' && $_POST['form'] === 'add_tag') {
-    $name  = trim($_POST['name'] ?? '');
-    $color = $_POST['color'] ?? '#888888';
+if ($method === 'POST' && ($_POST['form'] ?? '') === 'add_tag') {
+    $name  = mb_substr(trim($_POST['name'] ?? ''), 0, 100);
+    $color = preg_match('/^#[0-9a-fA-F]{6}$/', $_POST['color'] ?? '') ? $_POST['color'] : '#888888';
     if ($name) {
         db()->prepare('INSERT INTO tags (name, color) VALUES (?, ?)')->execute([$name, $color]);
         header('Location: /settings?success=tag_added');
@@ -60,22 +60,21 @@ if ($method === 'POST' && $_POST['form'] === 'add_tag') {
     }
 }
 
-// Удалить тег
-if ($method === 'POST' && $_POST['form'] === 'delete_tag') {
+if ($method === 'POST' && ($_POST['form'] ?? '') === 'delete_tag') {
     $id = (int)$_POST['id'];
     db()->prepare('DELETE FROM tags WHERE id = ?')->execute([$id]);
     header('Location: /settings?success=tag_deleted');
     exit;
 }
 
-// Сменить тему
-if ($method === 'POST' && $_POST['form'] === 'set_theme') {
+// ===========================
+// ТЕМА
+// ===========================
+
+if ($method === 'POST' && ($_POST['form'] ?? '') === 'set_theme') {
     $allowed = ['dark-default', 'dark-blue', 'dark-green', 'light-default', 'light-warm', 'light-purple'];
-    $theme   = $_POST['theme'] ?? 'dark-default';
-    if (in_array($theme, $allowed)) {
-        db()->prepare('UPDATE users SET theme = ? WHERE id = ?')->execute([$theme, $_SESSION['user_id']]);
-        $_SESSION['theme'] = $theme;
-    }
+    $theme   = in_array($_POST['theme'] ?? '', $allowed) ? $_POST['theme'] : 'dark-default';
+    db()->prepare('UPDATE users SET theme = ? WHERE id = ?')->execute([$theme, $_SESSION['user_id']]);
     header('Location: /settings?success=theme');
     exit;
 }
@@ -84,8 +83,8 @@ if ($method === 'POST' && $_POST['form'] === 'set_theme') {
 // ОТДЕЛЫ
 // ===========================
 
-if ($method === 'POST' && $_POST['form'] === 'add_department') {
-    $name = trim($_POST['name'] ?? '');
+if ($method === 'POST' && ($_POST['form'] ?? '') === 'add_department') {
+    $name = mb_substr(trim($_POST['name'] ?? ''), 0, 255);
     if ($name) {
         db()->prepare('INSERT INTO departments (name) VALUES (?)')->execute([$name]);
         header('Location: /settings?success=1');
@@ -93,9 +92,9 @@ if ($method === 'POST' && $_POST['form'] === 'add_department') {
     }
 }
 
-if ($method === 'POST' && $_POST['form'] === 'rename_department') {
+if ($method === 'POST' && ($_POST['form'] ?? '') === 'rename_department') {
     $id   = (int)$_POST['id'];
-    $name = trim($_POST['name'] ?? '');
+    $name = mb_substr(trim($_POST['name'] ?? ''), 0, 255);
     if ($id && $name) {
         db()->prepare('UPDATE departments SET name = ? WHERE id = ?')->execute([$name, $id]);
         header('Location: /settings?success=1');
@@ -103,7 +102,7 @@ if ($method === 'POST' && $_POST['form'] === 'rename_department') {
     }
 }
 
-if ($method === 'POST' && $_POST['form'] === 'delete_department') {
+if ($method === 'POST' && ($_POST['form'] ?? '') === 'delete_department') {
     $id = (int)$_POST['id'];
     db()->prepare('DELETE FROM departments WHERE id = ?')->execute([$id]);
     header('Location: /settings?success=1');
@@ -114,8 +113,8 @@ if ($method === 'POST' && $_POST['form'] === 'delete_department') {
 // ЗАКАЗЧИКИ
 // ===========================
 
-if ($method === 'POST' && $_POST['form'] === 'add_customer') {
-    $name          = trim($_POST['name'] ?? '');
+if ($method === 'POST' && ($_POST['form'] ?? '') === 'add_customer') {
+    $name          = mb_substr(trim($_POST['name'] ?? ''), 0, 255);
     $department_id = (int)$_POST['department_id'];
     if ($name && $department_id) {
         db()->prepare('INSERT INTO customers (department_id, name) VALUES (?, ?)')->execute([$department_id, $name]);
@@ -124,9 +123,9 @@ if ($method === 'POST' && $_POST['form'] === 'add_customer') {
     }
 }
 
-if ($method === 'POST' && $_POST['form'] === 'rename_customer') {
+if ($method === 'POST' && ($_POST['form'] ?? '') === 'rename_customer') {
     $id   = (int)$_POST['id'];
-    $name = trim($_POST['name'] ?? '');
+    $name = mb_substr(trim($_POST['name'] ?? ''), 0, 255);
     if ($id && $name) {
         db()->prepare('UPDATE customers SET name = ? WHERE id = ?')->execute([$name, $id]);
         header('Location: /settings?success=1');
@@ -134,14 +133,13 @@ if ($method === 'POST' && $_POST['form'] === 'rename_customer') {
     }
 }
 
-if ($method === 'POST' && $_POST['form'] === 'delete_customer') {
+if ($method === 'POST' && ($_POST['form'] ?? '') === 'delete_customer') {
     $id = (int)$_POST['id'];
     db()->prepare('DELETE FROM customers WHERE id = ?')->execute([$id]);
     header('Location: /settings?success=1');
     exit;
 }
 
-// Данные для отображения
 // Данные для отображения
 $projects    = db()->query('SELECT * FROM projects ORDER BY is_archived ASC, name ASC')->fetchAll();
 $tags        = db()->query('SELECT * FROM tags ORDER BY name')->fetchAll();

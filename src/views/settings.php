@@ -49,6 +49,7 @@
                         </button>
                         <!-- Архивировать/восстановить -->
                         <form method="POST" action="/settings" style="display:inline">
+        <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
                             <input type="hidden" name="form" value="toggle_project">
                             <input type="hidden" name="id" value="<?= $p['id'] ?>">
                             <input type="hidden" name="archived" value="<?= $p['is_archived'] ? 0 : 1 ?>">
@@ -61,6 +62,7 @@
                 <!-- Форма переименования -->
                 <div id="rename-<?= $p['id'] ?>" style="display:none;padding:10px 0">
                     <form method="POST" action="/settings" style="display:flex;gap:8px">
+        <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
                         <input type="hidden" name="form" value="rename_project">
                         <input type="hidden" name="id" value="<?= $p['id'] ?>">
                         <input type="text" name="name" value="<?= htmlspecialchars($p['name']) ?>" style="flex:1">
@@ -77,6 +79,7 @@
             <?php $currentTheme = getUserTheme(); ?>
 
             <form method="POST" action="/settings">
+        <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
                 <input type="hidden" name="form" value="set_theme">
                 <input type="hidden" name="theme" id="theme-input" value="<?= $currentTheme ?>">
 
@@ -111,6 +114,7 @@
         </div>                                      
         <!-- Добавить проект -->
         <form method="POST" action="/settings" style="display:flex;gap:8px;margin-top:16px">
+        <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
             <input type="hidden" name="form" value="add_project">
             <input type="text" name="name" placeholder="Название нового проекта" style="flex:1">
             <button type="submit" class="btn btn-primary">Добавить</button>
@@ -130,6 +134,7 @@
                             <?= htmlspecialchars($tag['name']) ?>
                         </span>
                         <form method="POST" action="/settings">
+        <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
                             <input type="hidden" name="form" value="delete_tag">
                             <input type="hidden" name="id" value="<?= $tag['id'] ?>">
                             <button type="submit" class="btn btn-ghost btn-sm"
@@ -146,6 +151,7 @@
 
         <!-- Добавить тег -->
         <form method="POST" action="/settings" style="display:flex;gap:8px;margin-top:16px;align-items:center">
+        <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
             <input type="hidden" name="form" value="add_tag">
             <input type="text" name="name" placeholder="Название тега" style="flex:1">
             <input type="color" name="color" value="#4f6ef7" style="width:40px;height:38px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-secondary);cursor:pointer;padding:2px">
@@ -166,6 +172,7 @@
                             Переименовать
                         </button>
                         <form method="POST" action="/settings" style="display:inline">
+        <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
                             <input type="hidden" name="form" value="delete_department">
                             <input type="hidden" name="id" value="<?= $dept['id'] ?>">
                             <button type="submit" class="btn btn-ghost btn-sm"
@@ -179,6 +186,7 @@
                 <!-- Форма переименования отдела -->
                 <div id="rename-dept-<?= $dept['id'] ?>" style="display:none;padding:8px 0">
                     <form method="POST" action="/settings" style="display:flex;gap:8px">
+        <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
                         <input type="hidden" name="form" value="rename_department">
                         <input type="hidden" name="id" value="<?= $dept['id'] ?>">
                         <input type="text" name="name" value="<?= htmlspecialchars($dept['name']) ?>" style="flex:1">
@@ -200,6 +208,7 @@
                                     Изменить
                                 </button>
                                 <form method="POST" action="/settings" style="display:inline">
+        <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
                                     <input type="hidden" name="form" value="delete_customer">
                                     <input type="hidden" name="id" value="<?= $c['id'] ?>">
                                     <button type="submit" class="btn btn-ghost btn-sm"
@@ -211,6 +220,7 @@
                         </div>
                         <div id="rename-customer-<?= $c['id'] ?>" style="display:none;padding:8px 16px">
                             <form method="POST" action="/settings" style="display:flex;gap:8px">
+        <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
                                 <input type="hidden" name="form" value="rename_customer">
                                 <input type="hidden" name="id" value="<?= $c['id'] ?>">
                                 <input type="text" name="name" value="<?= htmlspecialchars($c['name']) ?>" style="flex:1">
@@ -223,6 +233,7 @@
 
                     <!-- Добавить заказчика в этот отдел -->
                     <form method="POST" action="/settings" style="display:flex;gap:8px;padding:8px 16px">
+        <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
                         <input type="hidden" name="form" value="add_customer">
                         <input type="hidden" name="department_id" value="<?= $dept['id'] ?>">
                         <input type="text" name="name" placeholder="Имя нового заказчика" style="flex:1">
@@ -235,6 +246,7 @@
         <!-- Добавить отдел -->
         <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
             <form method="POST" action="/settings" style="display:flex;gap:8px">
+        <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
                 <input type="hidden" name="form" value="add_department">
                 <input type="text" name="name" placeholder="Название нового отдела" style="flex:1">
                 <button type="submit" class="btn btn-primary">Добавить отдел</button>

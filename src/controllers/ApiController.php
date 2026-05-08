@@ -16,6 +16,16 @@ if ($method !== 'POST' || !isset($_SESSION['user_id'])) {
 
 // /api/format
 if ($uri === '/api/format') {
+
+    // CSRF-защита для AJAX (токен в заголовке)
+    $token    = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+    $expected = $_SESSION['csrf_token'] ?? '';
+    if (!$expected || !hash_equals($expected, $token)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'CSRF token mismatch']);
+        exit;
+    }
+
     $body = json_decode(file_get_contents('php://input'), true);
     $text = $body['text'] ?? '';
 
@@ -24,7 +34,14 @@ if ($uri === '/api/format') {
         exit;
     }
 
-$prompt = "Ты помощник по форматированию технических заданий.
+    // Ограничение длины — защита от злоупотребления API
+    if (mb_strlen($text) > 50000) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Text too long (max 50000 chars)']);
+        exit;
+    }
+
+    $prompt = "Ты помощник по форматированию технических заданий.
 Тебе дают HTML или сырой текст из Битрикс24 или другой системы.
 Твоя задача — очистить и отформатировать его в красивый HTML для отображения в веб-приложении.
 
@@ -70,6 +87,7 @@ $prompt = "Ты помощник по форматированию технич�
     ]));
 
     if (!$response) {
+        http_response_code(502);
         echo json_encode(['error' => 'API error']);
         exit;
     }
@@ -80,6 +98,9 @@ $prompt = "Ты помощник по форматированию технич�
     // Чистим на случай если Claude обернул в ```html
     $html = preg_replace('/^```html\s*/i', '', $html);
     $html = preg_replace('/\s*```$/', '', $html);
+
+    // Дополнительно очищаем через sanitizeHtml — на случай если AI вернул что-то лишнее
+    $html = sanitizeHtml($html);
 
     echo json_encode(['html' => $html]);
     exit;

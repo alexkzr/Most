@@ -2,3 +2,43 @@ RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [QSA,L]
+
+# ─── Запрет доступа к чувствительным файлам ──────────────────────────────────
+<FilesMatch "(\.env|\.env\.example|config\.php|composer\.lock|schema\.sql|folderStructure\.sql)$">
+    Require all denied
+</FilesMatch>
+
+# Запрет доступа к скрытым директориям (.git, .github)
+RedirectMatch 404 /\.git
+RedirectMatch 404 /\.github
+RedirectMatch 404 /\.env
+
+# ─── HTTP Security Headers ────────────────────────────────────────────────────
+<IfModule mod_headers.c>
+    # Защита от clickjacking — запрет встраивания в iframe
+    Header always set X-Frame-Options "SAMEORIGIN"
+
+    # Браузер не должен угадывать тип контента (защита от MIME-sniffing)
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Политика реферера — не передаём полный URL внешним сайтам
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Разрешаем ресурсы только со своего домена + cdnjs (Quill, Sortable)
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; img-src 'self' data:; font-src 'self' cdnjs.cloudflare.com; connect-src 'self';"
+
+    # Принудительный HTTPS (включить когда есть SSL)
+    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+    # Отключаем определение XSS-фильтра браузера (устаревший, но безвредный)
+    Header always set X-XSS-Protection "0"
+
+    # Убираем заголовок X-Powered-By (не раскрываем версию PHP)
+    Header always unset X-Powered-By
+</IfModule>
+
+# ─── Запрет листинга директорий ───────────────────────────────────────────────
+Options -Indexes
+
+# ─── Отключаем server signature ──────────────────────────────────────────────
+ServerSignature Off

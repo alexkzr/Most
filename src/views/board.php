@@ -16,65 +16,61 @@ $priorityLabels = [
 <?php $pageTitle = 'Доска'; require __DIR__ . '/head.php'; ?>
 <body>
 
-<!-- Шапка -->
 <header class="header">
     <div style="display:flex;align-items:center;gap:24px">
         <div class="header-logo">Most</div>
-
-        <!-- Переключатель проектов -->
         <div class="project-switcher">
             <?php foreach ($projects as $p): ?>
-                <a href="/?project=<?= $p['id'] ?>"
+                <a href="/?project=<?= (int)$p['id'] ?>"
                    class="project-tab <?= $p['id'] == $project_id ? 'active' : '' ?>">
-                    <?= htmlspecialchars($p['name']) ?>
+                    <?= htmlspecialchars($p['name'], ENT_QUOTES, 'UTF-8') ?>
                 </a>
             <?php endforeach; ?>
         </div>
     </div>
 
-    <!-- Статистика -->
     <div class="header-stats">
-        <div class="header-stat">Очередь <span><?= $stats['new'] ?? 0 ?></span></div>
-        <div class="header-stat">В работе <span><?= $stats['in_progress'] ?? 0 ?></span></div>
-        <div class="header-stat">Тестирование <span><?= $stats['testing'] ?? 0 ?></span></div>
-        <div class="header-stat">Завершено <span><?= $stats['done'] ?? 0 ?></span></div>
+        <div class="header-stat">Очередь <span><?= (int)($stats['new'] ?? 0) ?></span></div>
+        <div class="header-stat">В работе <span><?= (int)($stats['in_progress'] ?? 0) ?></span></div>
+        <div class="header-stat">Тестирование <span><?= (int)($stats['testing'] ?? 0) ?></span></div>
+        <div class="header-stat">Завершено <span><?= (int)($stats['done'] ?? 0) ?></span></div>
     </div>
     <div class="view-switcher">
-        <a href="/?project=<?= $project_id ?>" class="view-btn active" title="Канбан">⊞</a>
-        <a href="/?view=list&project=<?= $project_id ?>" class="view-btn" title="Список">☰</a>
+        <a href="/?project=<?= (int)$project_id ?>" class="view-btn active" title="Канбан">⊞</a>
+        <a href="/?view=list&project=<?= (int)$project_id ?>" class="view-btn" title="Список">☰</a>
     </div>
-    <!-- Навигация -->
     <div class="header-nav">
         <a href="/tasks/create" class="btn btn-primary">+ Задача</a>
         <a href="/archive" class="btn btn-ghost">Архив</a>
         <a href="/settings" class="btn btn-ghost">Настройки</a>
-        <span class="header-user"><?= htmlspecialchars($_SESSION['user_name']) ?></span>
+        <span class="header-user"><?= htmlspecialchars($_SESSION['user_name'], ENT_QUOTES, 'UTF-8') ?></span>
         <a href="/logout" class="btn btn-ghost">Выйти</a>
     </div>
 </header>
 
-<!-- Канбан -->
+<!-- CSRF-токен для JS-запросов -->
+<script>const CSRF_TOKEN = '<?= csrfToken() ?>';</script>
+
 <div class="board">
     <?php foreach ($columns as $status => $column): ?>
-        <div class="column" data-status="<?= $status ?>">
+        <div class="column" data-status="<?= htmlspecialchars($status, ENT_QUOTES, 'UTF-8') ?>">
             <div class="column-header">
-                <span class="column-title"><?= $column['title'] ?></span>
+                <span class="column-title"><?= htmlspecialchars($column['title'], ENT_QUOTES, 'UTF-8') ?></span>
                 <span class="column-count"><?= count($column['tasks']) ?></span>
             </div>
-            <div class="column-body" id="col-<?= $status ?>">
+            <div class="column-body" id="col-<?= htmlspecialchars($status, ENT_QUOTES, 'UTF-8') ?>">
                 <?php foreach ($column['tasks'] as $task): ?>
                     <div class="card <?= $task['status'] === 'pending_archive' ? 'pending-archive' : '' ?> <?= $task['is_presidency'] ? 'card-presidency' : '' ?>"
-                        data-task-id="<?= $task['id'] ?>"
-                        onclick="window.location='/tasks/<?= $task['id'] ?>'">
+                        data-task-id="<?= (int)$task['id'] ?>"
+                        onclick="window.location='/tasks/<?= (int)$task['id'] ?>'">
 
-                        <div class="card-title"><?= htmlspecialchars($task['title']) ?></div>
+                        <div class="card-title"><?= htmlspecialchars($task['title'], ENT_QUOTES, 'UTF-8') ?></div>
                         <?php if ($task['is_presidency']): ?>
                             <div class="presidency-badge">🔴 Area Presidency</div>
                         <?php endif; ?>
                         <div class="card-meta">
-                            <!-- Приоритет -->
-                            <span class="badge badge-<?= $task['priority'] ?>">
-                                <?= $priorityLabels[$task['priority']] ?>
+                            <span class="badge badge-<?= htmlspecialchars($task['priority'], ENT_QUOTES, 'UTF-8') ?>">
+                                <?= htmlspecialchars($priorityLabels[$task['priority']] ?? $task['priority'], ENT_QUOTES, 'UTF-8') ?>
                             </span>
                             <?php
                                 $workTypeLabels = [
@@ -87,24 +83,19 @@ $priorityLabels = [
                                         <?= $workTypeLabels[$task['work_type']]['label'] ?>
                                     </span>
                                 <?php endif; ?>
-                            <!-- Теги -->
                             <?php foreach ($task['tags'] as $tag): ?>
-                                <span class="badge badge-tag"><?= htmlspecialchars($tag['name']) ?></span>
+                                <span class="badge badge-tag"><?= htmlspecialchars($tag['name'], ENT_QUOTES, 'UTF-8') ?></span>
                             <?php endforeach; ?>
 
-                            <!-- Дедлайн -->
                             <?php if ($task['date_end']): ?>
-                                <?php
-                                $overdue = $task['date_end'] && strtotime($task['date_end']) < time() && $task['status'] !== 'done';
-                                ?>
+                                <?php $overdue = strtotime($task['date_end']) < time() && $task['status'] !== 'done'; ?>
                                 <span class="card-deadline <?= $overdue ? 'overdue' : '' ?>">
                                     <?= date('d.m', strtotime($task['date_end'])) ?>
                                 </span>
                             <?php endif; ?>
 
-                            <!-- Исполнитель -->
                             <?php if ($task['assignee_name']): ?>
-                                <span class="card-assignee"><?= htmlspecialchars($task['assignee_name']) ?></span>
+                                <span class="card-assignee"><?= htmlspecialchars($task['assignee_name'], ENT_QUOTES, 'UTF-8') ?></span>
                             <?php endif; ?>
                         </div>
 
@@ -113,13 +104,13 @@ $priorityLabels = [
                                 ⚠ Ожидает архивирования
                             </div>
                         <?php endif; ?>
-
                     </div>
                 <?php endforeach; ?>
             </div>
         </div>
     <?php endforeach; ?>
 </div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
 <script>
 document.querySelectorAll('.column-body').forEach(col => {
@@ -137,10 +128,11 @@ document.querySelectorAll('.column-body').forEach(col => {
                 return;
             }
 
+            // CSRF-токен передаём в теле запроса
             fetch('/tasks/' + taskId + '/move', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: 'status=' + encodeURIComponent(newStatus)
+                body: 'status=' + encodeURIComponent(newStatus) + '&csrf_token=' + encodeURIComponent(CSRF_TOKEN)
             }).then(r => {
                 if (!r.ok) {
                     evt.from.insertBefore(evt.item, evt.from.children[evt.oldIndex]);

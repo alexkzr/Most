@@ -8,7 +8,7 @@
         <a href="/" class="header-logo">Most</a>
     </div>
     <div class="header-nav">
-        <span class="header-user"><?= htmlspecialchars($_SESSION['user_name']) ?></span>
+        <span class="header-user"><?= htmlspecialchars($_SESSION['user_name'], ENT_QUOTES, 'UTF-8') ?></span>
         <a href="/logout" class="btn btn-ghost">Выйти</a>
     </div>
 </header>
@@ -20,29 +20,28 @@
     </div>
 
     <?php if ($error): ?>
-        <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
+        <div class="alert alert-error"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
     <?php endif; ?>
 
     <form method="POST" action="/tasks/create">
+        <!-- CSRF-токен -->
+        <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
+
         <div class="form-card">
 
-            <!-- Название -->
             <div class="form-group">
                 <label for="title">Название <span class="required">*</span></label>
                 <input type="text" id="title" name="title"
-                       value="<?= htmlspecialchars($_POST['title'] ?? '') ?>"
-                       placeholder="Кратко опишите задачу" autofocus>
+                       value="<?= htmlspecialchars($_POST['title'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                       placeholder="Кратко опишите задачу" autofocus maxlength="500">
             </div>
 
-            <!-- Описание -->
             <div class="form-group">
                 <label>Описание</label>
                 <div class="desc-editor">
-
-                    <!-- Режим ввода -->
                     <div id="desc-input-mode">
                         <textarea id="desc-textarea" rows="10"
-                                  placeholder="Вставьте текст или HTML из Битрикса..."><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
+                                  placeholder="Вставьте текст или HTML из Битрикса..."><?= htmlspecialchars($_POST['description'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
                         <div class="desc-actions">
                             <button type="button" id="ai-format-btn" class="btn btn-ghost btn-sm">
                                 <span id="ai-btn-text">✨ Отформатировать через ИИ</span>
@@ -50,7 +49,6 @@
                         </div>
                     </div>
 
-                    <!-- Режим предпросмотра -->
                     <div id="desc-preview-mode" style="display:none">
                         <div id="desc-preview" class="desc-preview"></div>
                         <div class="desc-actions">
@@ -58,9 +56,8 @@
                         </div>
                     </div>
 
-                    <!-- Скрытый input — уходит в БД -->
                     <input type="hidden" name="description" id="desc-hidden"
-                           value="<?= htmlspecialchars($_POST['description'] ?? '') ?>">
+                           value="<?= htmlspecialchars($_POST['description'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                 </div>
             </div>
 
@@ -70,9 +67,9 @@
                     <select id="project_id" name="project_id">
                         <option value="">— выберите —</option>
                         <?php foreach ($projects as $p): ?>
-                            <option value="<?= $p['id'] ?>"
+                            <option value="<?= (int)$p['id'] ?>"
                                 <?= ($_POST['project_id'] ?? '') == $p['id'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($p['name']) ?>
+                                <?= htmlspecialchars($p['name'], ENT_QUOTES, 'UTF-8') ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -83,9 +80,9 @@
                     <select id="assignee_id" name="assignee_id">
                         <option value="">— не назначен —</option>
                         <?php foreach ($assignees as $a): ?>
-                            <option value="<?= $a['id'] ?>"
+                            <option value="<?= (int)$a['id'] ?>"
                                 <?= ($_POST['assignee_id'] ?? '') == $a['id'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($a['name']) ?>
+                                <?= htmlspecialchars($a['name'], ENT_QUOTES, 'UTF-8') ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -98,9 +95,9 @@
                     <select id="department_id" name="department_id" onchange="filterCustomers(this.value)">
                         <option value="">— выберите отдел —</option>
                         <?php foreach ($departments as $d): ?>
-                            <option value="<?= $d['id'] ?>"
+                            <option value="<?= (int)$d['id'] ?>"
                                 <?= ($_POST['department_id'] ?? '') == $d['id'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($d['name']) ?>
+                                <?= htmlspecialchars($d['name'], ENT_QUOTES, 'UTF-8') ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -111,10 +108,10 @@
                     <select id="customer_id" name="customer_id">
                         <option value="">— выберите заказчика —</option>
                         <?php foreach ($customers_all as $c): ?>
-                            <option value="<?= $c['id'] ?>"
-                                    data-dept="<?= $c['department_id'] ?>"
+                            <option value="<?= (int)$c['id'] ?>"
+                                    data-dept="<?= (int)$c['department_id'] ?>"
                                 <?= ($_POST['customer_id'] ?? '') == $c['id'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($c['name']) ?>
+                                <?= htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8') ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -128,15 +125,15 @@
                 </div>
             </div>
 
-                <div class="form-group">
-                    <label for="priority">Приоритет</label>
-                    <select id="priority" name="priority">
-                        <option value="high"   <?= ($_POST['priority'] ?? '') === 'high'   ? 'selected' : '' ?>>Высокий</option>
-                        <option value="medium" <?= ($_POST['priority'] ?? 'medium') === 'medium' ? 'selected' : '' ?>>Средний</option>
-                        <option value="low"    <?= ($_POST['priority'] ?? '') === 'low'    ? 'selected' : '' ?>>Низкий</option>
-                    </select>
-                </div>
+            <div class="form-group">
+                <label for="priority">Приоритет</label>
+                <select id="priority" name="priority">
+                    <option value="high"   <?= ($_POST['priority'] ?? '') === 'high'   ? 'selected' : '' ?>>Высокий</option>
+                    <option value="medium" <?= ($_POST['priority'] ?? 'medium') === 'medium' ? 'selected' : '' ?>>Средний</option>
+                    <option value="low"    <?= ($_POST['priority'] ?? '') === 'low'    ? 'selected' : '' ?>>Низкий</option>
+                </select>
             </div>
+
             <div class="form-group">
                 <label for="work_type">Тип работ</label>
                 <select id="work_type" name="work_type">
@@ -146,7 +143,8 @@
                     <option value="bugfix"      <?= ($_POST['work_type'] ?? '') === 'bugfix'      ? 'selected' : '' ?>>Исправление ошибки</option>
                 </select>
             </div>
-           <div class="form-group">
+
+            <div class="form-group">
                 <label>Сложность</label>
                 <div class="stars-input">
                     <?php for ($i = 1; $i <= 5; $i++): ?>
@@ -155,13 +153,14 @@
                         <label for="star<?= $i ?>" class="star" data-value="<?= $i ?>">★</label>
                     <?php endfor; ?>
                 </div>
-            </div>                    
+            </div>
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="estimated_hours">Оценка (часов)</label>
                     <input type="number" id="estimated_hours" name="estimated_hours"
                         min="0.5" max="999" step="0.5"
-                        value="<?= htmlspecialchars($_POST['estimated_hours'] ?? '') ?>"
+                        value="<?= htmlspecialchars($_POST['estimated_hours'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                         placeholder="например 4">
                 </div>
             </div>
@@ -170,12 +169,12 @@
                 <div class="form-group">
                     <label for="date_start">Дата начала</label>
                     <input type="date" id="date_start" name="date_start"
-                        value="<?= htmlspecialchars($_POST['date_start'] ?? '') ?>">
+                        value="<?= htmlspecialchars($_POST['date_start'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                 </div>
                 <div class="form-group">
                     <label for="date_end">Дата завершения</label>
                     <input type="date" id="date_end" name="date_end"
-                        value="<?= htmlspecialchars($_POST['date_end'] ?? '') ?>">
+                        value="<?= htmlspecialchars($_POST['date_end'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                 </div>
             </div>
 
@@ -185,10 +184,10 @@
                 <div class="tags-grid">
                     <?php foreach ($tags as $tag): ?>
                         <label class="tag-checkbox">
-                            <input type="checkbox" name="tags[]" value="<?= $tag['id'] ?>"
+                            <input type="checkbox" name="tags[]" value="<?= (int)$tag['id'] ?>"
                                 <?= in_array($tag['id'], $_POST['tags'] ?? []) ? 'checked' : '' ?>>
-                            <span class="tag-label" style="border-color:<?= htmlspecialchars($tag['color']) ?>">
-                                <?= htmlspecialchars($tag['name']) ?>
+                            <span class="tag-label" style="border-color:<?= htmlspecialchars($tag['color'], ENT_QUOTES, 'UTF-8') ?>">
+                                <?= htmlspecialchars($tag['name'], ENT_QUOTES, 'UTF-8') ?>
                             </span>
                         </label>
                     <?php endforeach; ?>
@@ -206,28 +205,26 @@
 </div>
 
 <script>
+const CSRF_TOKEN  = '<?= csrfToken() ?>';
 const textarea    = document.getElementById('desc-textarea');
 const inputMode   = document.getElementById('desc-input-mode');
 const previewMode = document.getElementById('desc-preview-mode');
 const preview     = document.getElementById('desc-preview');
 const hiddenInput = document.getElementById('desc-hidden');
 
-// Если уже есть сохранённый HTML — показываем предпросмотр
 const existing = hiddenInput.value.trim();
 if (existing) {
-    preview.innerHTML        = existing;
-    inputMode.style.display  = 'none';
+    preview.innerHTML         = existing;
+    inputMode.style.display   = 'none';
     previewMode.style.display = 'block';
 }
 
-// Кнопка "Редактировать снова"
 document.getElementById('desc-edit-btn').addEventListener('click', function() {
     previewMode.style.display = 'none';
     inputMode.style.display   = 'block';
     textarea.value = hiddenInput.value;
 });
 
-// ИИ форматирование
 document.getElementById('ai-format-btn').addEventListener('click', async function() {
     const text = textarea.value.trim();
     if (!text) { alert('Сначала введите текст'); return; }
@@ -240,7 +237,10 @@ document.getElementById('ai-format-btn').addEventListener('click', async functio
     try {
         const res  = await fetch('/api/format', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': CSRF_TOKEN   // ← CSRF-токен в заголовке для AJAX
+            },
             body: JSON.stringify({ text: text })
         });
         const data = await res.json();
@@ -261,14 +261,12 @@ document.getElementById('ai-format-btn').addEventListener('click', async functio
     }
 });
 
-// Перед сабмитом — если остались в режиме ввода, берём текст из textarea
 document.querySelector('form').addEventListener('submit', function() {
     if (inputMode.style.display !== 'none') {
         hiddenInput.value = textarea.value;
     }
 });
-</script>
-<script>
+
 function filterCustomers(deptId) {
     const select  = document.getElementById('customer_id');
     const options = select.querySelectorAll('option');
@@ -279,7 +277,6 @@ function filterCustomers(deptId) {
     select.value = '';
 }
 
-// При загрузке — фильтруем если уже выбран отдел
 const deptSelect = document.getElementById('department_id');
 if (deptSelect.value) filterCustomers(deptSelect.value);
 </script>

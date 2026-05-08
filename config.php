@@ -11,9 +11,9 @@ define('DB_PASS', $env['DB_PASS']);
 
 // Приложение
 define('APP_NAME', $env['APP_NAME']);
-define('APP_URL',  $env['APP_URL']);
+define('APP_URL',  $env['APP_URL'] ?? '');
 
-//proxyapi token
+// API
 define('ANTHROPIC_API_KEY', $env['ANTHROPIC_API_KEY']);
 
 // Сессия
@@ -35,11 +35,93 @@ function db(): PDO {
                 ]
             );
         } catch (PDOException $e) {
-            die('Ошибка подключения к БД: ' . $e->getMessage());
+            // Детали ошибки — только в лог, пользователю — общая фраза
+            error_log('[DB ERROR] ' . $e->getMessage());
+            http_response_code(500);
+            die('Внутренняя ошибка сервера. Попробуйте позже.');
         }
     }
     return $pdo;
 }
+
+// ─── CSRF ────────────────────────────────────────────────────────────────────
+
+/**
+ * Возвращает CSRF-токен текущей сессии (генерирует при необходимости)
+ */
+function csrfToken(): string {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+/**
+ * Проверяет CSRF-токен из POST-данных или заголовка X-CSRF-Token.
+ * При несовпадении — завершает запрос с 403.
+ */
+function csrfVerify(): void {
+    $token = $_POST['csrf_token']
+          ?? $_SERVER['HTTP_X_CSRF_TOKEN']
+          ?? '';
+    $expected = $_SESSION['csrf_token'] ?? '';
+
+    if (!$expected || !hash_equals($expected, $token)) {
+        http_response_code(403);
+        error_log('[CSRF] Invalid token from IP: ' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+        die('Запрос отклонён: неверный токен безопасности.');
+    }
+}
+
+// ─── HTML-очистка (защита от XSS в description) ──────────────────────────────
+
+/**
+ * Очищает HTML-строку, оставляя только безопасные теги.
+ * Используется перед сохранением description и перед выводом.
+ */
+function sanitizeHtml(string $html): string {
+    // Разрешённые теги и атрибуты (whitelist)
+    $allowed_tags = [
+        'h2', 'h3', 'p', 'br',
+        'ul', 'ol', 'li',
+        'strong', 'em', 'code', 'pre',
+        'blockquote',
+        'table', 'thead', 'tbody', 'tr', 'th', 'td',
+    ];
+
+    // Убираем опасные теги и атрибуты через DOMDocument
+    if (!$html || trim($html) === '') return '';
+
+    // Запрещаем все теги, не входящие в whitelist
+    $html = strip_tags($html, '<' . implode('><', $allowed_tags) . '>');
+
+    // Убираем все атрибуты (в том числе onclick, onerror, style и т.д.)
+    // через простое DOM-прохождение
+    $dom = new DOMDocument('1.0', 'UTF-8');
+    libxml_use_internal_errors(true);
+    // Оборачиваем, чтобы DOMDocument не добавлял html/body
+    $dom->loadHTML('<?xml encoding="UTF-8"><div id="__wrap__">' . $html . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+    libxml_clear_errors();
+
+    // Рекурсивно удаляем все атрибуты у всех элементов
+    $xpath = new DOMXPath($dom);
+    foreach ($xpath->query('//@*') as $attr) {
+        $attr->ownerElement->removeAttribute($attr->nodeName);
+    }
+
+    // Извлекаем только содержимое нашего обёртки
+    $wrap = $dom->getElementById('__wrap__');
+    if (!$wrap) return htmlspecialchars($html, ENT_QUOTES, 'UTF-8');
+
+    $result = '';
+    foreach ($wrap->childNodes as $child) {
+        $result .= $dom->saveHTML($child);
+    }
+
+    return $result;
+}
+
+// ─── Тема пользователя ───────────────────────────────────────────────────────
 
 function getUserTheme(): string {
     if (!isset($_SESSION['user_id'])) return 'dark-default';
@@ -47,4 +129,22 @@ function getUserTheme(): string {
     $stmt->execute([$_SESSION['user_id']]);
     $user = $stmt->fetch();
     return $user['theme'] ?? 'dark-default';
+}
+
+// ─── Open Redirect — безопасный редирект ─────────────────────────────────────
+
+/**
+ * Редирект только на наш домен (защита от Open Redirect через HTTP_REFERER)
+ */
+function safeRedirect(string $url, string $fallback = '/'): void {
+    $appHost    = parse_url(APP_URL, PHP_URL_HOST) ?: '';
+    $targetHost = parse_url($url, PHP_URL_HOST) ?: '';
+
+    // Если хост совпадает с нашим или URL относительный — разрешаем
+    if ($targetHost === '' || $targetHost === $appHost) {
+        header('Location: ' . $url);
+    } else {
+        header('Location: ' . $fallback);
+    }
+    exit;
 }

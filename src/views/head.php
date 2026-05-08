@@ -7,6 +7,4 @@
     <title>Most — <?= $pageTitle ?? 'Доска' ?></title>
     <link rel="stylesheet" href="/public/css/style.css">
     <link rel="stylesheet" href="/public/css/themes.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
 </head>
