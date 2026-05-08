@@ -96,7 +96,7 @@ $activeTab   = in_array($_GET['tab'] ?? '', $allowedTabs) ? $_GET['tab'] : 'comm
                 </button>
                 <div class="desc-spoiler-body">
                     <div class="desc-preview">
-                        <?= $task['description'] /* уже очищено sanitizeHtml() при сохранении */ ?>
+                        <?= $task['description'] ?>
                     </div>
                 </div>
             </div>
@@ -373,7 +373,7 @@ $activeTab   = in_array($_GET['tab'] ?? '', $allowedTabs) ? $_GET['tab'] : 'comm
     </div>
 </div>
 
-<script>
+<script nonce="<?= htmlspecialchars($_SERVER['CSP_NONCE'], ENT_QUOTES, 'UTF-8') ?>">
 document.querySelectorAll('.snippet-header').forEach(h => {
     h.addEventListener('click', () => {
         const snippet = h.parentElement;

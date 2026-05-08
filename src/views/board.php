@@ -49,7 +49,7 @@ $priorityLabels = [
 </header>
 
 <!-- CSRF-токен для JS-запросов -->
-<script>const CSRF_TOKEN = '<?= csrfToken() ?>';</script>
+ <script nonce="<?= htmlspecialchars($_SERVER['CSP_NONCE'], ENT_QUOTES, 'UTF-8') ?>">const CSRF_TOKEN = '<?= csrfToken() ?>';</script>
 
 <div class="board">
     <?php foreach ($columns as $status => $column): ?>
@@ -112,7 +112,7 @@ $priorityLabels = [
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
-<script>
+<script nonce="<?= htmlspecialchars($_SERVER['CSP_NONCE'], ENT_QUOTES, 'UTF-8') ?>">
 document.querySelectorAll('.column-body').forEach(col => {
     Sortable.create(col, {
         group: 'tasks',

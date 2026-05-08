@@ -9,7 +9,7 @@
     </div>
     <div class="header-nav">
         <a href="/" class="btn btn-ghost">← Доска</a>
-        <span class="header-user"><?= htmlspecialchars($_SESSION['user_name']) ?></span>
+        <span class="header-user"><?= htmlspecialchars($_SESSION['user_name'] ENT_QUOTES, 'UTF-8') ?></span>
         <a href="/logout" class="btn btn-ghost">Выйти</a>
     </div>
 </header>
@@ -38,7 +38,7 @@
             <?php foreach ($projects as $p): ?>
                 <div class="settings-item">
                     <span class="settings-item-name <?= $p['is_archived'] ? 'archived' : '' ?>">
-                        <?= htmlspecialchars($p['name']) ?>
+                        <?= htmlspecialchars($p['name'] ENT_QUOTES, 'UTF-8') ?>
                         <?= $p['is_archived'] ? '<span class="badge badge-tag">архив</span>' : '' ?>
                     </span>
                     <div class="settings-item-actions">
@@ -65,7 +65,7 @@
         <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
                         <input type="hidden" name="form" value="rename_project">
                         <input type="hidden" name="id" value="<?= $p['id'] ?>">
-                        <input type="text" name="name" value="<?= htmlspecialchars($p['name']) ?>" style="flex:1">
+                        <input type="text" name="name" value="<?= htmlspecialchars($p['name'], ENT_QUOTES, 'UTF-8') ?>" style="flex:1">
                         <button type="submit" class="btn btn-primary btn-sm">Сохранить</button>
                         <button type="button" class="btn btn-ghost btn-sm"
                                 onclick="this.closest('div').style.display='none'">Отмена</button>
@@ -130,15 +130,15 @@
                 <?php foreach ($tags as $tag): ?>
                     <div class="settings-item">
                         <span class="settings-item-name">
-                            <span class="tag-dot" style="background:<?= htmlspecialchars($tag['color']) ?>"></span>
-                            <?= htmlspecialchars($tag['name']) ?>
+                            <span class="tag-dot" style="background:<?= htmlspecialchars($tag['color'] ENT_QUOTES, 'UTF-8') ?>"></span>
+                            <?= htmlspecialchars($tag['name'] ENT_QUOTES, 'UTF-8') ?>
                         </span>
                         <form method="POST" action="/settings">
         <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
                             <input type="hidden" name="form" value="delete_tag">
                             <input type="hidden" name="id" value="<?= $tag['id'] ?>">
                             <button type="submit" class="btn btn-ghost btn-sm"
-                                    onclick="return confirm('Удалить тег «<?= htmlspecialchars($tag['name']) ?>»?')">
+                                    onclick="return confirm('Удалить тег «<?= htmlspecialchars($tag['name'] ENT_QUOTES, 'UTF-8') ?>»?')">
                                 Удалить
                             </button>
                         </form>
@@ -165,7 +165,7 @@
         <?php foreach ($departments as $dept): ?>
             <div class="dept-block">
                 <div class="dept-header">
-                    <span class="dept-name"><?= htmlspecialchars($dept['name']) ?></span>
+                    <span class="dept-name"><?= htmlspecialchars($dept['name'] ENT_QUOTES, 'UTF-8') ?></span>
                     <div class="settings-item-actions">
                         <button class="btn btn-ghost btn-sm"
                                 onclick="document.getElementById('rename-dept-<?= $dept['id'] ?>').style.display='block';this.style.display='none'">
@@ -189,7 +189,7 @@
         <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
                         <input type="hidden" name="form" value="rename_department">
                         <input type="hidden" name="id" value="<?= $dept['id'] ?>">
-                        <input type="text" name="name" value="<?= htmlspecialchars($dept['name']) ?>" style="flex:1">
+                        <input type="text" name="name" value="<?= htmlspecialchars($dept['name'] ENT_QUOTES, 'UTF-8') ?>" style="flex:1">
                         <button type="submit" class="btn btn-primary btn-sm">Сохранить</button>
                         <button type="button" class="btn btn-ghost btn-sm"
                                 onclick="this.closest('div').style.display='none'">Отмена</button>
@@ -201,7 +201,7 @@
                     <?php foreach ($customers as $c): ?>
                         <?php if ($c['department_id'] != $dept['id']) continue; ?>
                         <div class="settings-item" style="padding-left:16px">
-                            <span class="settings-item-name">— <?= htmlspecialchars($c['name']) ?></span>
+                            <span class="settings-item-name">— <?= htmlspecialchars($c['name'] ENT_QUOTES, 'UTF-8') ?></span>
                             <div class="settings-item-actions">
                                 <button class="btn btn-ghost btn-sm"
                                         onclick="document.getElementById('rename-customer-<?= $c['id'] ?>').style.display='block';this.style.display='none'">
@@ -223,7 +223,7 @@
         <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
                                 <input type="hidden" name="form" value="rename_customer">
                                 <input type="hidden" name="id" value="<?= $c['id'] ?>">
-                                <input type="text" name="name" value="<?= htmlspecialchars($c['name']) ?>" style="flex:1">
+                                <input type="text" name="name" value="<?= htmlspecialchars($c['name'] ENT_QUOTES, 'UTF-8') ?>" style="flex:1">
                                 <button type="submit" class="btn btn-primary btn-sm">Сохранить</button>
                                 <button type="button" class="btn btn-ghost btn-sm"
                                         onclick="this.closest('div').style.display='none'">Отмена</button>
@@ -255,7 +255,7 @@
     </div>
 
 </div>
-<script>
+<script nonce="<?= htmlspecialchars($_SERVER['CSP_NONCE'], ENT_QUOTES, 'UTF-8') ?>">
 function selectTheme(key) {
     document.getElementById('theme-input').value = key;
     document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));

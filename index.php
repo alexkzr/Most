@@ -2,6 +2,25 @@
 
 require_once __DIR__ . '/config.php';
 
+// ─── Заголовки безопасности (до session_start) ────────────────────────────────
+
+function applySecurityHeaders(): void {
+    $nonce = base64_encode(random_bytes(16));
+    $_SERVER['CSP_NONCE'] = $nonce;
+
+    header("Content-Security-Policy: " .
+           "default-src 'self'; " .
+           "script-src 'self' 'nonce-$nonce' cdnjs.cloudflare.com; " .
+           "style-src 'self' 'nonce-$nonce' cdnjs.cloudflare.com; " .
+           "img-src 'self' data:; " .
+           "font-src 'self' cdnjs.cloudflare.com; " .
+           "connect-src 'self'; " .
+           "frame-ancestors 'none'; " .
+           "form-action 'self'; " .
+           "base-uri 'self';");
+}
+
+applySecurityHeaders();
 // ─── Безопасные настройки сессии ─────────────────────────────────────────────
 // Настраиваем ДО session_start()
 ini_set('session.cookie_httponly', '1');   // JS не может читать куки — защита от XSS
