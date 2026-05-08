@@ -3,21 +3,36 @@
 require_once __DIR__ . '/config.php';
 
 // ─── Заголовки безопасности (до session_start) ────────────────────────────────
-
 function applySecurityHeaders(): void {
     $nonce = base64_encode(random_bytes(16));
     $_SERVER['CSP_NONCE'] = $nonce;
 
+    // Content Security Policy с nonce
     header("Content-Security-Policy: " .
            "default-src 'self'; " .
-           "script-src 'self' 'nonce-$nonce' cdnjs.cloudflare.com; " .
-           "style-src 'self' 'nonce-$nonce' cdnjs.cloudflare.com; " .
+           "script-src 'self' 'nonce-$nonce'; " .
+           "style-src 'self' 'nonce-$nonce'; " .
            "img-src 'self' data:; " .
-           "font-src 'self' cdnjs.cloudflare.com; " .
+           "font-src 'self'; " .
            "connect-src 'self'; " .
            "frame-ancestors 'none'; " .
            "form-action 'self'; " .
            "base-uri 'self';");
+
+    // HSTS — только HTTPS на год
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+
+    // Защита от MIME-sniffing
+    header('X-Content-Type-Options: nosniff');
+
+    // Защита от clickjacking
+    header('X-Frame-Options: SAMEORIGIN');
+
+    // Политика реферера
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+
+    // Скрываем версию PHP
+    header_remove('X-Powered-By');
 }
 
 applySecurityHeaders();
@@ -68,6 +83,6 @@ match(true) {
     // 404
     default => (function() {
         http_response_code(404);
-        echo '404 — страница не найдена';
+        require __DIR__ . '/src/views/404.php';
     })()
 };

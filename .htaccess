@@ -16,19 +16,19 @@ RedirectMatch 404 /\.env
 # ─── HTTP Security Headers ────────────────────────────────────────────────────
 <IfModule mod_headers.c>
     # Защита от clickjacking — запрет встраивания в iframe
-    Header always set X-Frame-Options "SAMEORIGIN"
+    # Header always set X-Frame-Options "SAMEORIGIN"
 
     # Браузер не должен угадывать тип контента (защита от MIME-sniffing)
-    Header always set X-Content-Type-Options "nosniff"
+    # Header always set X-Content-Type-Options "nosniff"
 
     # Политика реферера — не передаём полный URL внешним сайтам
-    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    # Header always set Referrer-Policy "strict-origin-when-cross-origin"
 
     # Разрешаем ресурсы только со своего домена + cdnjs (Quill, Sortable)
-    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; img-src 'self' data:; font-src 'self' cdnjs.cloudflare.com; connect-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'self';"
+    # Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; img-src 'self' data:; font-src 'self' cdnjs.cloudflare.com; connect-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'self';"
 
     # Принудительный HTTPS (включить когда есть SSL)
-    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
 
     # Отключаем определение XSS-фильтра браузера (устаревший, но безвредный)
     Header always set X-XSS-Protection "0"

@@ -38,7 +38,8 @@ function db(): PDO {
             // Детали ошибки — только в лог, пользователю — общая фраза
             error_log('[DB ERROR] ' . $e->getMessage());
             http_response_code(500);
-            die('Внутренняя ошибка сервера. Попробуйте позже.');
+            require __DIR__ . '/src/views/500.php';
+            exit;
         }
     }
     return $pdo;
