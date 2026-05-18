@@ -11,6 +11,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 if ($method !== 'POST' || !isset($_SESSION['user_id'])) {
     http_response_code(403);
     echo json_encode(['error' => 'Forbidden']);
+    error_log('[API DEBUG] session_id=' . session_id() . ' user_id=' . ($_SESSION['user_id'] ?? 'NOT SET') . ' csrf=' . ($_SESSION['csrf_token'] ?? 'NOT SET'));
     exit;
 }
 
