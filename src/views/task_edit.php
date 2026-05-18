@@ -208,6 +208,7 @@
 </div>
 
 <script nonce="<?= htmlspecialchars($_SERVER['CSP_NONCE'], ENT_QUOTES, 'UTF-8') ?>">
+const CSRF_TOKEN = '<?= csrfToken() ?>';
 const textarea    = document.getElementById('desc-textarea');
 const inputMode   = document.getElementById('desc-input-mode');
 const previewMode = document.getElementById('desc-preview-mode');
