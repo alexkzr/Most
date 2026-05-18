@@ -104,8 +104,7 @@ if ($uri === '/api/format') {
     $html = preg_replace('/^```html\s*/i', '', $html);
     $html = preg_replace('/\s*```$/', '', $html);
     $html = sanitizeHtml($html);
-
-    echo json_encode(['html' => $html]);
+    echo json_encode(['html' => $html], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
