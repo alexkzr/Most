@@ -235,13 +235,12 @@ document.getElementById('ai-format-btn').addEventListener('click', async functio
     btnText.textContent = '⏳ Форматирую...';
 
     try {
-        const res  = await fetch('/api/format', {
+        const res = await fetch('/api/format', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-Token': CSRF_TOKEN   // ← CSRF-токен в заголовке для AJAX
             },
-            body: JSON.stringify({ text: text })
+            body: JSON.stringify({ text: text, csrf_token: CSRF_TOKEN })
         });
         const data = await res.json();
 

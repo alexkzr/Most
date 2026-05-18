@@ -238,10 +238,12 @@ document.getElementById('ai-format-btn').addEventListener('click', async functio
     btnText.textContent = '⏳ Форматирую...';
 
     try {
-        const res  = await fetch('/api/format', {
+        const res = await fetch('/api/format', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: text })
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ text: text, csrf_token: CSRF_TOKEN })
         });
         const data = await res.json();
         if (data.html) {

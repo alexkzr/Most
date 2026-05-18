@@ -11,28 +11,23 @@ $method = $_SERVER['REQUEST_METHOD'];
 if ($method !== 'POST' || !isset($_SESSION['user_id'])) {
     http_response_code(403);
     echo json_encode(['error' => 'Forbidden']);
-    error_log('[API DEBUG] session_id=' . session_id() . ' user_id=' . ($_SESSION['user_id'] ?? 'NOT SET') . ' csrf=' . ($_SESSION['csrf_token'] ?? 'NOT SET'));
     exit;
 }
 
 // /api/format
 if ($uri === '/api/format') {
 
-    // CSRF-защита для AJAX (токен в заголовке)
-    $token    = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+    // Читаем тело запроса один раз
+    $body     = json_decode(file_get_contents('php://input'), true);
+    $token    = $body['csrf_token'] ?? '';
     $expected = $_SESSION['csrf_token'] ?? '';
+
     if (!$expected || !hash_equals($expected, $token)) {
         http_response_code(403);
-        echo json_encode([
-            'error'    => 'CSRF token mismatch',
-            'received' => $token,
-            'expected' => $expected,
-            'session'  => session_id(),
-        ]);
+        echo json_encode(['error' => 'CSRF token mismatch']);
         exit;
     }
 
-    $body = json_decode(file_get_contents('php://input'), true);
     $text = $body['text'] ?? '';
 
     if (!$text) {
@@ -40,7 +35,6 @@ if ($uri === '/api/format') {
         exit;
     }
 
-    // Ограничение длины — защита от злоупотребления API
     if (mb_strlen($text) > 50000) {
         http_response_code(400);
         echo json_encode(['error' => 'Text too long (max 50000 chars)']);
@@ -101,11 +95,8 @@ if ($uri === '/api/format') {
     $data = json_decode($response, true);
     $html = $data['content'][0]['text'] ?? '';
 
-    // Чистим на случай если Claude обернул в ```html
     $html = preg_replace('/^```html\s*/i', '', $html);
     $html = preg_replace('/\s*```$/', '', $html);
-
-    // Дополнительно очищаем через sanitizeHtml — на случай если AI вернул что-то лишнее
     $html = sanitizeHtml($html);
 
     echo json_encode(['html' => $html]);
