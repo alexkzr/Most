@@ -67,28 +67,34 @@ if ($uri === '/api/format') {
 Текст для форматирования:
 {$text}";
 
-    $response = file_get_contents('https://api.proxyapi.ru/anthropic/v1/messages', false, stream_context_create([
-        'http' => [
-            'method'  => 'POST',
-            'header'  => implode("\r\n", [
-                'Content-Type: application/json',
-                'x-api-key: ' . ANTHROPIC_API_KEY,
-                'anthropic-version: 2023-06-01',
-            ]),
-            'content' => json_encode([
-                'model'      => 'claude-sonnet-4-20250514',
-                'max_tokens' => 4096,
-                'messages'   => [
-                    ['role' => 'user', 'content' => $prompt]
-                ]
-            ]),
-            'ignore_errors' => true,
-        ]
-    ]));
+    $ch = curl_init('https://api.proxyapi.ru/anthropic/v1/messages');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_HTTPHEADER     => [
+            'Content-Type: application/json',
+            'x-api-key: ' . ANTHROPIC_API_KEY,
+            'anthropic-version: 2023-06-01',
+        ],
+        CURLOPT_POSTFIELDS     => json_encode([
+            'model'      => 'claude-sonnet-4-20250514',
+            'max_tokens' => 4096,
+            'messages'   => [
+                ['role' => 'user', 'content' => $prompt]
+            ]
+        ]),
+        CURLOPT_TIMEOUT        => 60,
+        CURLOPT_SSL_VERIFYPEER => true,
+    ]);
+
+    $response  = curl_exec($ch);
+    $curlError = curl_error($ch);
+    $curlCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
 
     if (!$response) {
         http_response_code(502);
-        echo json_encode(['error' => 'API error']);
+        echo json_encode(['error' => 'API error', 'detail' => $curlError]);
         exit;
     }
 
