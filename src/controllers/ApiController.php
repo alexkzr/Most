@@ -23,7 +23,12 @@ if ($uri === '/api/format') {
     $expected = $_SESSION['csrf_token'] ?? '';
     if (!$expected || !hash_equals($expected, $token)) {
         http_response_code(403);
-        echo json_encode(['error' => 'CSRF token mismatch']);
+        echo json_encode([
+            'error'    => 'CSRF token mismatch',
+            'received' => $token,
+            'expected' => $expected,
+            'session'  => session_id(),
+        ]);
         exit;
     }
 
