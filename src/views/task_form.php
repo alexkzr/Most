@@ -245,11 +245,14 @@ document.getElementById('ai-format-btn').addEventListener('click', async functio
         const data = await res.json();
 
         if (data.html) {
-            hiddenInput.value         = data.html;
-            preview.innerHTML         = data.html;
+            const txt = document.createElement('textarea');
+            txt.innerHTML = data.html;
+            const decoded = txt.value;
+            hiddenInput.value         = decoded;
+            preview.innerHTML         = decoded;
             inputMode.style.display   = 'none';
             previewMode.style.display = 'block';
-        } else {
+        }else {
             alert('Ошибка форматирования');
         }
     } catch(e) {
