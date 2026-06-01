@@ -1517,16 +1517,18 @@ a {
    =========================== */
 
 .diff-removed {
-    background: rgba(255, 80, 80, 0.15);
+    background: rgba(255, 80, 80, 0.25);
     color: #ff8080;
     display: inline;
     border-radius: 2px;
+    font-style: normal;
 }
 
 .diff-added {
-    background: rgba(80, 255, 120, 0.15);
+    background: rgba(80, 255, 120, 0.25);
     color: #80ff98;
     display: inline;
     border-radius: 2px;
+    font-style: normal;
 }
 

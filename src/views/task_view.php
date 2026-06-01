@@ -384,57 +384,48 @@ document.querySelectorAll('.snippet-header').forEach(h => {
     });
 });
 
-// Подсветка синтаксиса
-document.querySelectorAll('pre code').forEach(block => {
-    hljs.highlightElement(block);
-});
-
-// Diff — подсветка изменений
+// Diff + подсветка
 document.querySelectorAll('.snippet').forEach(snippet => {
-    const sides = snippet.querySelectorAll('.diff-side');
-    if (sides.length < 2) return; // нет "до" — нечего сравнивать
+    const sides    = snippet.querySelectorAll('.diff-side');
+    const beforeEl = sides.length >= 2 ? sides[0].querySelector('code') : null;
+    const afterEl  = sides.length >= 2 ? sides[1].querySelector('code') : sides[0]?.querySelector('code');
 
-    const beforeEl = sides[0].querySelector('code');
-    const afterEl  = sides[1].querySelector('code');
-    if (!beforeEl || !afterEl) return;
+    if (beforeEl && afterEl && beforeEl !== afterEl) {
+        const beforeText = beforeEl.textContent;
+        const afterText  = afterEl.textContent;
 
-    const beforeText = beforeEl.innerText;
-    const afterText  = afterEl.innerText;
+        const diff = Diff.diffLines(beforeText, afterText);
 
-    // Вычисляем diff построчно
-    const diff = Diff.diffLines(beforeText, afterText);
+        let beforeHtml = '';
+        let afterHtml  = '';
 
-    // Перестраиваем "было" — красным то что удалено
-    let beforeHtml = '';
-    let afterHtml  = '';
+        diff.forEach(part => {
+            // Подсвечиваем каждую строку
+            const highlighted = hljs.highlight(part.value, { language: '1c' }).value;
 
-    diff.forEach(part => {
-        const lines = part.value
-            .split('\n')
-            .map(line => {
-                if (!line && lines && lines.indexOf(line) === lines.length - 1) return '';
-                return hljs.highlight(line, { language: '1c' }).value;
-            })
-            .join('\n');
+            if (part.removed) {
+                beforeHtml += `<mark class="diff-removed">${highlighted}</mark>`;
+            } else if (part.added) {
+                afterHtml += `<mark class="diff-added">${highlighted}</mark>`;
+            } else {
+                beforeHtml += highlighted;
+                afterHtml  += highlighted;
+            }
+        });
 
-        if (part.removed) {
-            beforeHtml += `<span class="diff-removed">${lines}</span>`;
-        } else if (part.added) {
-            afterHtml += `<span class="diff-added">${lines}</span>`;
-        } else {
-            beforeHtml += lines;
-            afterHtml  += lines;
-        }
-    });
-
-    beforeEl.innerHTML = beforeHtml;
-    afterEl.innerHTML  = afterHtml;
+        beforeEl.innerHTML = beforeHtml;
+        afterEl.innerHTML  = afterHtml;
+    } else {
+        // Только "стало" — просто подсветка
+        snippet.querySelectorAll('pre code').forEach(block => {
+            hljs.highlightElement(block);
+        });
+    }
 });
 
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') window.location.href = '/';
 });
-
 </script>
 </body>
 </html>
