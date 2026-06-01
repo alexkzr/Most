@@ -153,7 +153,7 @@ $activeTab   = in_array($_GET['tab'] ?? '', $allowedTabs) ? $_GET['tab'] : 'comm
                     <?php if ($snippets): ?>
                         <?php foreach ($snippets as $s): ?>
                             <div class="snippet">
-                                <div class="snippet-header" onclick="this.parentElement.classList.toggle('open')">
+                                <div class="snippet-header">
                                     <span class="snippet-toggle">▶</span>
                                     <span><?= htmlspecialchars($s['description'] ?: 'Сниппет от ' . $s['user_name'], ENT_QUOTES, 'UTF-8') ?></span>
                                     <span class="snippet-meta"><?= date('d.m.Y H:i', strtotime($s['created_at'])) ?></span>
