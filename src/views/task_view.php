@@ -362,7 +362,8 @@ $activeTab   = in_array($_GET['tab'] ?? '', $allowedTabs) ? $_GET['tab'] : 'comm
 <script nonce="<?= htmlspecialchars($_SERVER['CSP_NONCE'], ENT_QUOTES, 'UTF-8') ?>">
 // Сниппеты — раскрытие
 document.querySelectorAll('.snippet-header').forEach(h => {
-    h.addEventListener('click', () => {
+    h.addEventListener('click', (e) => {
+        if (e.target.closest('.snippet-expand-btn')) return;
         const snippet = h.parentElement;
         const toggle  = h.querySelector('.snippet-toggle');
         snippet.classList.toggle('open');
