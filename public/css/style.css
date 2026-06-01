@@ -1602,3 +1602,12 @@ a {
     border-radius: 0;
 }
 
+body.snippet-expanded {
+    overflow: hidden;
+}
+
+.snippet.expanded .diff {
+    height: 100%;
+    gap: 0;
+    overflow: hidden;
+}

@@ -427,11 +427,11 @@ document.querySelectorAll('.snippet').forEach(snippet => {
 // Кнопка развернуть
 document.querySelectorAll('.snippet-expand-btn').forEach(btn => {
     btn.addEventListener('click', function(e) {
-        e.stopPropagation(); // не триггерим раскрытие сниппета
+        e.stopPropagation();
         const snippet = this.closest('.snippet');
         const isExpanded = snippet.classList.toggle('expanded');
         this.textContent = isExpanded ? '⤡' : '⤢';
-        // Убедимся что сниппет открыт
+        document.body.classList.toggle('snippet-expanded', isExpanded);
         if (isExpanded) snippet.classList.add('open');
     });
 });
@@ -443,14 +443,13 @@ document.addEventListener('keydown', function(e) {
         if (expanded) {
             expanded.classList.remove('expanded');
             expanded.querySelector('.snippet-expand-btn').textContent = '⤢';
+            document.body.classList.remove('snippet-expanded');
         } else {
             window.location.href = '/';
         }
     }
 });
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') window.location.href = '/';
-});
+
 </script>
 </body>
 </html>
