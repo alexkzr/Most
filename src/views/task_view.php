@@ -382,6 +382,10 @@ document.querySelectorAll('.snippet-header').forEach(h => {
         toggle.textContent = snippet.classList.contains('open') ? '▼' : '▶';
     });
 });
+// Подсветка синтаксиса
+document.querySelectorAll('pre code').forEach(block => {
+    hljs.highlightElement(block);
+});
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') window.location.href = '/';
 });

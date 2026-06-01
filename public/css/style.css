@@ -1498,3 +1498,16 @@ a {
 .badge-status-done            { background: rgba(34,197,94,0.15);   color: #86efac; }
 .badge-status-pending_archive { background: rgba(239,68,68,0.15);   color: #fca5a5; }
 
+.snippet-body pre {
+    background: #0d1117 !important;
+    border-radius: var(--radius);
+    padding: 14px;
+    overflow-x: auto;
+    margin: 0;
+}
+
+.snippet-body pre code {
+    background: transparent !important;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+}
