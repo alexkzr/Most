@@ -1532,3 +1532,73 @@ a {
     font-style: normal;
 }
 
+/* ===========================
+   Развернуть сниппет
+   =========================== */
+
+.snippet-expand-btn {
+    margin-left: auto;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 2px 8px;
+    font-size: 14px;
+    line-height: 1;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.snippet-expand-btn:hover {
+    color: var(--text);
+    border-color: var(--accent);
+}
+
+.snippet.expanded {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    background: var(--bg-card);
+    border-radius: 0;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.snippet.expanded .snippet-header {
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.snippet.expanded .snippet-body {
+    flex: 1;
+    overflow: auto;
+    display: block;
+}
+
+.snippet.expanded .diff {
+    height: 100%;
+    gap: 0;
+}
+
+.snippet.expanded .diff-side {
+    overflow: auto;
+    height: 100%;
+    border-right: 1px solid var(--border);
+}
+
+.snippet.expanded .diff-side:last-child {
+    border-right: none;
+}
+
+.snippet.expanded .diff-side pre {
+    height: 100%;
+    margin: 0;
+    border-radius: 0;
+}
+

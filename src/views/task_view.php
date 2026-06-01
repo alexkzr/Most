@@ -157,22 +157,8 @@ $activeTab   = in_array($_GET['tab'] ?? '', $allowedTabs) ? $_GET['tab'] : 'comm
                                     <span class="snippet-toggle">▶</span>
                                     <span><?= htmlspecialchars($s['description'] ?: 'Сниппет от ' . $s['user_name'], ENT_QUOTES, 'UTF-8') ?></span>
                                     <span class="snippet-meta"><?= date('d.m.Y H:i', strtotime($s['created_at'])) ?></span>
+                                    <button type="button" class="snippet-expand-btn" title="Развернуть">⤢</button>
                                 </div>
-                                <div class="snippet-body">
-                                    <div class="diff">
-                                        <?php if ($s['code_before']): ?>
-                                            <div class="diff-side">
-                                                <div class="diff-label">Было</div>
-                                                <pre><code class="language-1c"><?= htmlspecialchars($s['code_before'], ENT_QUOTES, 'UTF-8') ?></code></pre>
-                                            </div>
-                                        <?php endif; ?>
-                                        <div class="diff-side">
-                                            <div class="diff-label">Стало</div>
-                                            <pre><code class="language-1c"><?= htmlspecialchars($s['code_after'], ENT_QUOTES, 'UTF-8') ?></code></pre>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <div class="empty-state">Сниппетов пока нет</div>
@@ -422,7 +408,30 @@ document.querySelectorAll('.snippet').forEach(snippet => {
         });
     }
 });
+// Кнопка развернуть
+document.querySelectorAll('.snippet-expand-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation(); // не триггерим раскрытие сниппета
+        const snippet = this.closest('.snippet');
+        const isExpanded = snippet.classList.toggle('expanded');
+        this.textContent = isExpanded ? '⤡' : '⤢';
+        // Убедимся что сниппет открыт
+        if (isExpanded) snippet.classList.add('open');
+    });
+});
 
+// Закрытие по Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const expanded = document.querySelector('.snippet.expanded');
+        if (expanded) {
+            expanded.classList.remove('expanded');
+            expanded.querySelector('.snippet-expand-btn').textContent = '⤢';
+        } else {
+            window.location.href = '/';
+        }
+    }
+});
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') window.location.href = '/';
 });
