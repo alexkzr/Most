@@ -159,6 +159,21 @@ $activeTab   = in_array($_GET['tab'] ?? '', $allowedTabs) ? $_GET['tab'] : 'comm
                                     <span class="snippet-meta"><?= date('d.m.Y H:i', strtotime($s['created_at'])) ?></span>
                                     <button type="button" class="snippet-expand-btn" title="Развернуть">⤢</button>
                                 </div>
+                                <div class="snippet-body">
+                                    <div class="diff">
+                                        <?php if ($s['code_before']): ?>
+                                            <div class="diff-side">
+                                                <div class="diff-label">Было</div>
+                                                <pre><code class="language-1c"><?= htmlspecialchars($s['code_before'], ENT_QUOTES, 'UTF-8') ?></code></pre>
+                                            </div>
+                                        <?php endif; ?>
+                                        <div class="diff-side">
+                                            <div class="diff-label">Стало</div>
+                                            <pre><code class="language-1c"><?= htmlspecialchars($s['code_after'], ENT_QUOTES, 'UTF-8') ?></code></pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <div class="empty-state">Сниппетов пока нет</div>
