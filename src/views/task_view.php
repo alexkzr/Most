@@ -374,6 +374,7 @@ $activeTab   = in_array($_GET['tab'] ?? '', $allowedTabs) ? $_GET['tab'] : 'comm
 </div>
 
 <script nonce="<?= htmlspecialchars($_SERVER['CSP_NONCE'], ENT_QUOTES, 'UTF-8') ?>">
+// Сниппеты — раскрытие
 document.querySelectorAll('.snippet-header').forEach(h => {
     h.addEventListener('click', () => {
         const snippet = h.parentElement;
@@ -382,13 +383,58 @@ document.querySelectorAll('.snippet-header').forEach(h => {
         toggle.textContent = snippet.classList.contains('open') ? '▼' : '▶';
     });
 });
+
 // Подсветка синтаксиса
 document.querySelectorAll('pre code').forEach(block => {
     hljs.highlightElement(block);
 });
+
+// Diff — подсветка изменений
+document.querySelectorAll('.snippet').forEach(snippet => {
+    const sides = snippet.querySelectorAll('.diff-side');
+    if (sides.length < 2) return; // нет "до" — нечего сравнивать
+
+    const beforeEl = sides[0].querySelector('code');
+    const afterEl  = sides[1].querySelector('code');
+    if (!beforeEl || !afterEl) return;
+
+    const beforeText = beforeEl.innerText;
+    const afterText  = afterEl.innerText;
+
+    // Вычисляем diff построчно
+    const diff = Diff.diffLines(beforeText, afterText);
+
+    // Перестраиваем "было" — красным то что удалено
+    let beforeHtml = '';
+    let afterHtml  = '';
+
+    diff.forEach(part => {
+        const lines = part.value
+            .split('\n')
+            .map(line => {
+                if (!line && lines && lines.indexOf(line) === lines.length - 1) return '';
+                return hljs.highlight(line, { language: '1c' }).value;
+            })
+            .join('\n');
+
+        if (part.removed) {
+            beforeHtml += `<span class="diff-removed">${lines}</span>`;
+        } else if (part.added) {
+            afterHtml += `<span class="diff-added">${lines}</span>`;
+        } else {
+            beforeHtml += lines;
+            afterHtml  += lines;
+        }
+    });
+
+    beforeEl.innerHTML = beforeHtml;
+    afterEl.innerHTML  = afterHtml;
+});
+
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') window.location.href = '/';
 });
+
 </script>
 </body>
 </html>

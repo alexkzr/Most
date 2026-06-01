@@ -1511,3 +1511,22 @@ a {
     font-size: 13px;
     font-family: 'Courier New', monospace;
 }
+
+/* ===========================
+   Diff подсветка
+   =========================== */
+
+.diff-removed {
+    background: rgba(255, 80, 80, 0.15);
+    color: #ff8080;
+    display: inline;
+    border-radius: 2px;
+}
+
+.diff-added {
+    background: rgba(80, 255, 120, 0.15);
+    color: #80ff98;
+    display: inline;
+    border-radius: 2px;
+}
+
