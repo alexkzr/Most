@@ -163,12 +163,12 @@ $activeTab   = in_array($_GET['tab'] ?? '', $allowedTabs) ? $_GET['tab'] : 'comm
                                         <?php if ($s['code_before']): ?>
                                             <div class="diff-side">
                                                 <div class="diff-label">Было</div>
-                                                <pre><?= htmlspecialchars($s['code_before'], ENT_QUOTES, 'UTF-8') ?></pre>
+                                                <pre><code class="language-1c"><?= htmlspecialchars($s['code_before'], ENT_QUOTES, 'UTF-8') ?></code></pre>
                                             </div>
                                         <?php endif; ?>
                                         <div class="diff-side">
                                             <div class="diff-label">Стало</div>
-                                            <pre><?= htmlspecialchars($s['code_after'], ENT_QUOTES, 'UTF-8') ?></pre>
+                                            <pre><code class="language-1c"><?= htmlspecialchars($s['code_after'], ENT_QUOTES, 'UTF-8') ?></code></pre>
                                         </div>
                                     </div>
                                 </div>
