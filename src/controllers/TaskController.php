@@ -291,7 +291,7 @@ if (is_numeric($action) && $sub === 'move' && $method === 'POST') {
     $taskId    = (int)$action;
     $newStatus = $_POST['status'] ?? '';
 
-    $allowed = ['new', 'in_progress', 'testing', 'done'];
+    $allowed = ['incoming', 'new', 'in_progress', 'testing', 'done'];
     if (!in_array($newStatus, $allowed)) {
         http_response_code(400);
         exit;
@@ -303,6 +303,7 @@ if (is_numeric($action) && $sub === 'move' && $method === 'POST') {
 
     if ($task) {
         $statusLabels = [
+            'incoming'    => 'Входящие',
             'new'         => 'Очередь',
             'in_progress' => 'В работе',
             'testing'     => 'Тестирование',

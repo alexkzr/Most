@@ -29,6 +29,7 @@ if ($project_id) {
 
 // Задачи по колонкам
 $columns = [
+    'incoming'    => ['title' => 'Входящие',     'tasks' => []],    
     'new'         => ['title' => 'Очередь',      'tasks' => []],
     'in_progress' => ['title' => 'В работе',     'tasks' => []],
     'testing'     => ['title' => 'Тестирование', 'tasks' => []],

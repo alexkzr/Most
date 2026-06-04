@@ -243,7 +243,7 @@ $activeTab   = in_array($_GET['tab'] ?? '', $allowedTabs) ? $_GET['tab'] : 'comm
                     <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
                     <select name="status" onchange="this.form.submit()"
                             <?= $task['status'] === 'pending_archive' ? 'disabled' : '' ?>>
-                        <?php foreach (['new' => 'Очередь', 'in_progress' => 'В работе', 'testing' => 'Тестирование', 'done' => 'Завершено'] as $s => $label): ?>
+                        <?php foreach (['incoming' => 'Входящие', 'new' => 'Очередь', 'in_progress' => 'В работе', 'testing' => 'Тестирование', 'done' => 'Завершено'] as $s => $label): ?>
                             <option value="<?= $s ?>" <?= $task['status'] === $s || ($task['status'] === 'pending_archive' && $s === 'done') ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?>
                             </option>

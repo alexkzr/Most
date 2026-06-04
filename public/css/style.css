@@ -1611,3 +1611,12 @@ body.snippet-expanded {
     gap: 0;
     overflow: hidden;
 }
+
+.column[data-status="incoming"] .column-title {
+    color: var(--accent);
+}
+
+.column[data-status="incoming"] {
+    border-top: 2px solid var(--accent);
+}
+

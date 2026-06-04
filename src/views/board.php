@@ -30,6 +30,7 @@ $priorityLabels = [
     </div>
 
     <div class="header-stats">
+        <div class="header-stat">Входящие <span><?= $stats['incoming'] ?? 0 ?></span></div>
         <div class="header-stat">Очередь <span><?= (int)($stats['new'] ?? 0) ?></span></div>
         <div class="header-stat">В работе <span><?= (int)($stats['in_progress'] ?? 0) ?></span></div>
         <div class="header-stat">Тестирование <span><?= (int)($stats['testing'] ?? 0) ?></span></div>
