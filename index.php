@@ -33,8 +33,19 @@ $uri    = rtrim($uri, '/');
 $method = $_SERVER['REQUEST_METHOD'];
 
 // Если не авторизован — только страница логина
-if (!isset($_SESSION['user_id']) && $uri !== '/login') {
+if (!isset($_SESSION['user_id']) && $uri !== '/login' && $uri !== '/login/2fa' && $uri !== '/logout') {
     header('Location: /login');
+    exit;
+}
+
+// Если прошёл логин но не прошёл 2FA — только на /login/2fa
+if (
+    isset($_SESSION['pending_2fa']) &&
+    $_SESSION['pending_2fa'] === true &&
+    $uri !== '/login/2fa' &&
+    $uri !== '/logout'
+) {
+    header('Location: /login/2fa');
     exit;
 }
 
@@ -42,6 +53,7 @@ if (!isset($_SESSION['user_id']) && $uri !== '/login') {
 match(true) {
     // Авторизация
     $uri === '/login'  => require __DIR__ . '/src/controllers/AuthController.php',
+    $uri === '/login/2fa' => require __DIR__ . '/src/controllers/TwoFactorController.php',
     $uri === '/logout' => require __DIR__ . '/src/controllers/AuthController.php',
 
     // Главная — канбан или список
