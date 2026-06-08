@@ -140,10 +140,77 @@ if ($method === 'POST' && ($_POST['form'] ?? '') === 'delete_customer') {
     exit;
 }
 
+// ===========================
+// 2FA — НАСТРОЙКА
+// ===========================
+
+// Показать QR-код
+if ($method === 'GET' && isset($_GET['setup_2fa'])) {
+    require_once __DIR__ . '/../lib/GoogleAuthenticator.php';
+    $ga     = new PHPGangsta_GoogleAuthenticator();
+    $secret = $ga->createSecret();
+    $_SESSION['totp_setup_secret'] = $secret;
+    $label  = urlencode('Most (' . $_SESSION['user_name'] . ')');
+    $qrUrl  = $ga->getQRCodeGoogleUrl($label, $secret);
+    require __DIR__ . '/../views/setup_2fa.php';
+    exit;
+}
+
+// Подтвердить и включить 2FA
+if ($method === 'POST' && ($_POST['form'] ?? '') === 'enable_2fa') {
+    csrfVerify();
+    require_once __DIR__ . '/../lib/GoogleAuthenticator.php';
+    $ga     = new PHPGangsta_GoogleAuthenticator();
+    $secret = $_SESSION['totp_setup_secret'] ?? '';
+    $code   = trim($_POST['code'] ?? '');
+
+    if ($secret && $ga->verifyCode($secret, $code, 1)) {
+        $encrypted = encryptSecret($secret);
+        db()->prepare('UPDATE users SET totp_secret = ?, totp_enabled = 1 WHERE id = ?')
+            ->execute([$encrypted, $_SESSION['user_id']]);
+        unset($_SESSION['totp_setup_secret']);
+        header('Location: /settings?success=2fa_enabled');
+        exit;
+    } else {
+        $error = 'Неверный код — попробуйте ещё раз';
+        require_once __DIR__ . '/../lib/GoogleAuthenticator.php';
+        $ga     = new PHPGangsta_GoogleAuthenticator();
+        $secret = $_SESSION['totp_setup_secret'];
+        $label  = urlencode('Most (' . $_SESSION['user_name'] . ')');
+        $qrUrl  = $ga->getQRCodeGoogleUrl($label, $secret);
+        require __DIR__ . '/../views/setup_2fa.php';
+        exit;
+    }
+}
+
+// Отключить 2FA
+if ($method === 'POST' && ($_POST['form'] ?? '') === 'disable_2fa') {
+    csrfVerify();
+    require_once __DIR__ . '/../lib/GoogleAuthenticator.php';
+    $ga   = new PHPGangsta_GoogleAuthenticator();
+    $stmt = db()->prepare('SELECT totp_secret FROM users WHERE id = ?');
+    $stmt->execute([$_SESSION['user_id']]);
+    $user = $stmt->fetch();
+
+    $secret = decryptSecret($user['totp_secret'] ?? '');
+    $code   = trim($_POST['code'] ?? '');
+
+    if ($secret && $ga->verifyCode($secret, $code, 1)) {
+        db()->prepare('UPDATE users SET totp_secret = NULL, totp_enabled = 0 WHERE id = ?')
+            ->execute([$_SESSION['user_id']]);
+        header('Location: /settings?success=2fa_disabled');
+        exit;
+    } else {
+        $error = 'Неверный код — 2FA не отключена';
+    }
+}
+
 // Данные для отображения
 $projects    = db()->query('SELECT * FROM projects ORDER BY is_archived ASC, name ASC')->fetchAll();
 $tags        = db()->query('SELECT * FROM tags ORDER BY name')->fetchAll();
 $departments = db()->query('SELECT * FROM departments ORDER BY name')->fetchAll();
 $customers   = db()->query('SELECT c.*, d.name AS department_name FROM customers c JOIN departments d ON d.id = c.department_id ORDER BY d.name, c.name')->fetchAll();
+
+
 
 require __DIR__ . '/../views/settings.php';
