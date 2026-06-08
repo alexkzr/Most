@@ -253,7 +253,51 @@
             </form>
         </div>
     </div>
+<!-- Двухфакторная аутентификация -->
+<div class="settings-section">
+    <h2 class="settings-title">Двухфакторная аутентификация</h2>
 
+    <?php if ($success === '2fa_enabled'): ?>
+        <div class="alert" style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#86efac;margin-bottom:16px">
+            ✓ 2FA успешно включена
+        </div>
+    <?php elseif ($success === '2fa_disabled'): ?>
+        <div class="alert" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);color:#fcd34d;margin-bottom:16px">
+            2FA отключена
+        </div>
+    <?php endif; ?>
+
+    <?php if ($me['totp_enabled']): ?>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+            <span style="color:var(--success);font-size:20px">✓</span>
+            <span style="font-weight:500">2FA включена</span>
+        </div>
+
+        <form method="POST" action="/settings">
+            <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
+            <input type="hidden" name="form" value="disable_2fa">
+            <div class="form-group">
+                <label for="disable_code">Введите код из приложения для отключения</label>
+                <input type="text"
+                       id="disable_code"
+                       name="code"
+                       maxlength="6"
+                       inputmode="numeric"
+                       pattern="[0-9]{6}"
+                       placeholder="000000"
+                       style="font-size:20px;letter-spacing:6px;text-align:center;max-width:200px">
+            </div>
+            <button type="submit" class="btn btn-danger">Отключить 2FA</button>
+        </form>
+
+    <?php else: ?>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+            <span style="color:var(--text-muted);font-size:20px">○</span>
+            <span style="color:var(--text-muted)">2FA не включена</span>
+        </div>
+        <a href="/settings?setup_2fa=1" class="btn btn-primary">Настроить 2FA</a>
+    <?php endif; ?>
+</div>
 </div>
 <script nonce="<?= htmlspecialchars($_SERVER['CSP_NONCE'], ENT_QUOTES, 'UTF-8') ?>">
 function selectTheme(key) {
