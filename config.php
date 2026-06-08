@@ -149,3 +149,22 @@ function safeRedirect(string $url, string $fallback = '/'): void {
     }
     exit;
 }
+
+// ─── TOTP — шифрование/расшифровка секрета ───────────────────────────────────
+
+define('TOTP_ENCRYPTION_KEY', $env['TOTP_ENCRYPTION_KEY'] ?? '');
+
+function encryptSecret(string $secret): string {
+    $key = TOTP_ENCRYPTION_KEY;
+    $iv  = random_bytes(16);
+    $encrypted = openssl_encrypt($secret, 'AES-256-CBC', $key, 0, $iv);
+    return base64_encode($iv . $encrypted);
+}
+
+function decryptSecret(string $data): string {
+    $key  = TOTP_ENCRYPTION_KEY;
+    $raw  = base64_decode($data);
+    $iv   = substr($raw, 0, 16);
+    $encrypted = substr($raw, 16);
+    return openssl_decrypt($encrypted, 'AES-256-CBC', $key, 0, $iv);
+}
