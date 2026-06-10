@@ -1696,3 +1696,28 @@ body.snippet-expanded {
     background: rgba(79, 110, 247, 0.06);
 }
 
+/* ===========================
+   Сортировка таблицы
+   =========================== */
+
+.sortable {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.sortable:hover {
+    color: var(--text);
+}
+
+.sort-icon {
+    color: var(--text-muted);
+    font-size: 11px;
+    margin-left: 4px;
+}
+
+.sortable.sort-asc .sort-icon,
+.sortable.sort-desc .sort-icon {
+    color: var(--accent);
+}
+
