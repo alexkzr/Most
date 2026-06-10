@@ -20,28 +20,32 @@ $priorityLabels = [
     <div style="display:flex;align-items:center;gap:24px">
         <div class="header-logo">Most</div>
         <div class="project-switcher">
-            <?php foreach ($projects as $p): ?>
-                <a href="/?project=<?= (int)$p['id'] ?>"
-                   class="project-tab <?= $p['id'] == $project_id ? 'active' : '' ?>">
-                    <?= htmlspecialchars($p['name'], ENT_QUOTES, 'UTF-8') ?>
-                </a>
-            <?php endforeach; ?>
+            <div class="project-dropdown" id="project-dropdown">
+                <button class="project-dropdown-btn" onclick="this.closest('.project-dropdown').classList.toggle('open')">
+                    <?php
+                    $currentProject = array_filter($projects, fn($p) => $p['id'] == $project_id);
+                    $currentProject = reset($currentProject);
+                    ?>
+                    <span><?= $currentProject ? htmlspecialchars($currentProject['name'], ENT_QUOTES, 'UTF-8') : 'Выберите проект' ?></span>
+                    <span class="project-dropdown-arrow">▾</span>
+                </button>
+                <div class="project-dropdown-menu">
+                    <?php foreach ($projects as $p): ?>
+                        <a href="/?project=<?= (int)$p['id'] ?>"
+                        class="project-dropdown-item <?= $p['id'] == $project_id ? 'active' : '' ?>">
+                            <?= htmlspecialchars($p['name'], ENT_QUOTES, 'UTF-8') ?>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
         </div>
-    </div>
-
-    <div class="header-stats">
-        <div class="header-stat">Входящие <span><?= $stats['incoming'] ?? 0 ?></span></div>
-        <div class="header-stat">Очередь <span><?= (int)($stats['new'] ?? 0) ?></span></div>
-        <div class="header-stat">В работе <span><?= (int)($stats['in_progress'] ?? 0) ?></span></div>
-        <div class="header-stat">Тестирование <span><?= (int)($stats['testing'] ?? 0) ?></span></div>
-        <div class="header-stat">Завершено <span><?= (int)($stats['done'] ?? 0) ?></span></div>
     </div>
     <div class="view-switcher">
         <a href="/?project=<?= (int)$project_id ?>" class="view-btn active" title="Канбан">⊞</a>
         <a href="/?view=list&project=<?= (int)$project_id ?>" class="view-btn" title="Список">☰</a>
     </div>
     <div class="header-nav">
-        <a href="/tasks/create" class="btn btn-primary">+ Задача</a>
+        <a href="/tasks/create" class="btn btn-primary">Создать</a>
         <a href="/archive" class="btn btn-ghost">Архив</a>
         <a href="/settings" class="btn btn-ghost">Настройки</a>
         <span class="header-user"><?= htmlspecialchars($_SESSION['user_name'], ENT_QUOTES, 'UTF-8') ?></span>
@@ -114,6 +118,11 @@ $priorityLabels = [
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
 <script nonce="<?= htmlspecialchars($_SERVER['CSP_NONCE'], ENT_QUOTES, 'UTF-8') ?>">
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.project-dropdown')) {
+        document.querySelectorAll('.project-dropdown.open').forEach(d => d.classList.remove('open'));
+    }
+});
 document.querySelectorAll('.column-body').forEach(col => {
     Sortable.create(col, {
         group: 'tasks',

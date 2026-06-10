@@ -12,20 +12,7 @@ if (!$project_id && $projects) {
     $project_id = $projects[0]['id'];
 }
 
-// Статистика для шапки
-$stats = [];
-if ($project_id) {
-    $stmt = db()->prepare('
-        SELECT status, COUNT(*) as cnt
-        FROM tasks
-        WHERE project_id = ? AND is_archived = 0
-        GROUP BY status
-    ');
-    $stmt->execute([$project_id]);
-    foreach ($stmt->fetchAll() as $row) {
-        $stats[$row['status']] = $row['cnt'];
-    }
-}
+
 
 // Задачи по колонкам
 $columns = [
