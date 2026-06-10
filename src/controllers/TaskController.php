@@ -382,7 +382,7 @@ if (is_numeric($action) && $sub === 'archive' && $method === 'POST') {
             header('Location: /tasks/' . $taskId . '?error=same_user');
             exit;
         }
-        db()->prepare('UPDATE tasks SET is_archived = 1, status = "done" WHERE id = ?')->execute([$taskId]);
+        db()->prepare('UPDATE tasks SET is_archived = 1, status = "done", archived_at = NOW() WHERE id = ?')->execute([$taskId]);
         logHistory($taskId, $_SESSION['user_id'], 'Задача архивирована');
         header('Location: /');
         exit;
