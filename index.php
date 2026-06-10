@@ -71,6 +71,7 @@ match(true) {
 
     // API
     str_starts_with($uri, '/api') => require __DIR__ . '/src/controllers/ApiController.php',
+    str_starts_with($uri, '/upload') => require __DIR__ . '/src/controllers/UploadController.php',
 
     // 404
     default => (function() {

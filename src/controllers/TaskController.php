@@ -149,6 +149,16 @@ if (is_numeric($action) && !$sub) {
     ');
     $stmt5->execute([$taskId]);
     $history = $stmt5->fetchAll();
+    // Файлы
+    $stmt6 = db()->prepare('
+        SELECT f.*, u.name AS user_name
+        FROM task_files f
+        JOIN users u ON u.id = f.user_id
+        WHERE f.task_id = ?
+        ORDER BY f.created_at ASC
+    ');
+    $stmt6->execute([$taskId]);
+    $files = $stmt6->fetchAll();
 
     if ($method === 'POST' && isset($_POST['comment'])) {
         csrfVerify(); // ← CSRF-защита
@@ -178,7 +188,21 @@ if (is_numeric($action) && !$sub) {
             exit;
         }
     }
-
+    // Удаление файла
+    if ($method === 'POST' && isset($_POST['delete_file_id'])) {
+        csrfVerify();
+        $fileId = (int)$_POST['delete_file_id'];
+        $stmt = db()->prepare('SELECT filename FROM task_files WHERE id = ? AND task_id = ?');
+        $stmt->execute([$fileId, $taskId]);
+        $file = $stmt->fetch();
+        if ($file) {
+            $path = __DIR__ . '/../../public/uploads/tasks/' . $file['filename'];
+            if (file_exists($path)) unlink($path);
+            db()->prepare('DELETE FROM task_files WHERE id = ?')->execute([$fileId]);
+        }
+        header('Location: /tasks/' . $taskId . '?tab=files');
+        exit;
+    }
     require __DIR__ . '/../views/task_view.php';
     exit;
 }
