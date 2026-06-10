@@ -1830,3 +1830,63 @@ body.snippet-expanded {
     transition: width 0.2s;
 }
 
+/* ===========================
+   Contenteditable редактор
+   =========================== */
+
+.desc-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.desc-toolbar-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.desc-contenteditable {
+    min-height: 200px;
+    padding: 12px 14px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.7;
+    outline: none;
+    transition: border-color 0.2s;
+    overflow-y: auto;
+}
+
+.desc-contenteditable:focus {
+    border-color: var(--accent);
+}
+
+.desc-contenteditable:empty::before {
+    content: attr(data-placeholder);
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.desc-contenteditable img.desc-img {
+    max-width: 100%;
+    border-radius: var(--radius);
+    margin: 8px 0;
+    display: block;
+    cursor: pointer;
+}
+
+.desc-contenteditable h2 { font-size: 18px; font-weight: 700; margin: 16px 0 8px; }
+.desc-contenteditable h3 { font-size: 15px; font-weight: 600; margin: 14px 0 6px; }
+.desc-contenteditable p  { margin: 6px 0; }
+.desc-contenteditable ul, .desc-contenteditable ol { padding-left: 20px; margin: 8px 0; }
+.desc-contenteditable li { margin: 4px 0; }
+.desc-contenteditable code { background: var(--bg-card); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 13px; }
+.desc-contenteditable pre { background: var(--bg-card); padding: 12px; border-radius: var(--radius); overflow-x: auto; }
+.desc-contenteditable table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+.desc-contenteditable th, .desc-contenteditable td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+.desc-contenteditable th { background: var(--bg-card); font-weight: 600; }
+.desc-contenteditable blockquote { border-left: 3px solid var(--accent); padding-left: 14px; margin: 12px 0; color: var(--text-muted); }
+
