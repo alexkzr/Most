@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../config.php';
 $project_id = $_GET['project'] ?? null;
 
 // Берём все проекты для переключателя
-$projects = db()->query('SELECT * FROM projects WHERE is_archived = 0 ORDER BY name')->fetchAll();
+$projects = db()->query('SELECT * FROM projects WHERE is_archived = 0 ORDER BY sort_order, name')->fetchAll();
 
 // Если проект не выбран — берём первый
 if (!$project_id && $projects) {
