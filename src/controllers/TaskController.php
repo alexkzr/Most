@@ -46,6 +46,7 @@ if ($action === 'create') {
         $date_start    = preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['date_start'] ?? '') ? $_POST['date_start'] : null;
         $date_end      = preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['date_end']   ?? '') ? $_POST['date_end']   : null;
         $selected_tags = array_map('intval', $_POST['tags'] ?? []);
+        $color = preg_match('/^#[0-9a-fA-F]{6}$/', $_POST['color'] ?? '') ? $_POST['color'] : null;
 
         if (!$title || !$project_id) {
             $error = 'Заполните название и проект';
@@ -53,14 +54,14 @@ if ($action === 'create') {
             $stmt = db()->prepare('
                 INSERT INTO tasks
                     (title, description, project_id, assignee_id, department_id, customer_id,
-                     is_presidency, priority, complexity, work_type, estimated_hours,
+                     is_presidency, priority, complexity, work_type, color, estimated_hours,
                      date_start, date_end, created_by)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ');
             $stmt->execute([
                 $title, $description, $project_id, $assignee_id,
                 $department_id, $customer_id, $is_presidency,
-                $priority, $complexity, $work_type,
+                $priority, $complexity, $work_type, $color,
                 $estimated, $date_start, $date_end,
                 $_SESSION['user_id']
             ]);
@@ -252,6 +253,7 @@ if (is_numeric($action) && $sub === 'edit') {
         $date_start    = preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['date_start'] ?? '') ? $_POST['date_start'] : null;
         $date_end      = preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['date_end']   ?? '') ? $_POST['date_end']   : null;
         $newTags       = array_map('intval', $_POST['tags'] ?? []);
+        $color = preg_match('/^#[0-9a-fA-F]{6}$/', $_POST['color'] ?? '') ? $_POST['color'] : null;
 
         if (!$title || !$project_id) {
             $error = 'Заполните название и проект';
@@ -267,6 +269,7 @@ if (is_numeric($action) && $sub === 'edit') {
                 'estimated_hours' => ['Оценка (ч)',      $task['estimated_hours'], $estimated],
                 'date_start'      => ['Дата начала',     $task['date_start'],      $date_start],
                 'date_end'        => ['Дата завершения', $task['date_end'],        $date_end],
+                'color' => ['Цвет', $task['color'], $color],    
             ];
 
             foreach ($fields as [$label, $old, $new]) {
@@ -279,12 +282,12 @@ if (is_numeric($action) && $sub === 'edit') {
                 UPDATE tasks
                 SET title = ?, description = ?, project_id = ?, assignee_id = ?,
                     department_id = ?, customer_id = ?, is_presidency = ?,
-                    priority = ?, complexity = ?, work_type = ?, estimated_hours = ?, date_start = ?, date_end = ?
+                    priority = ?, complexity = ?, work_type = ?, color = ?, estimated_hours = ?, date_start = ?, date_end = ?
                 WHERE id = ?
             ')->execute([
                 $title, $description, $project_id, $assignee_id,
                 $department_id, $customer_id, $is_presidency,
-                $priority, $complexity, $work_type,
+                $priority, $complexity, $work_type, $color,
                 $estimated, $date_start, $date_end,
                 $taskId
             ]);

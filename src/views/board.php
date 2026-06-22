@@ -67,6 +67,7 @@ $priorityLabels = [
                 <?php foreach ($column['tasks'] as $task): ?>
                     <div class="card <?= $task['status'] === 'pending_archive' ? 'pending-archive' : '' ?> <?= $task['is_presidency'] ? 'card-presidency' : '' ?>"
                         data-task-id="<?= (int)$task['id'] ?>"
+                        style="<?= $task['color'] ? '--card-color:' . htmlspecialchars($task['color'], ENT_QUOTES, 'UTF-8') . ';background-color:color-mix(in srgb,' . htmlspecialchars($task['color'], ENT_QUOTES, 'UTF-8') . ' 15%,var(--bg-card))' : '' ?>"
                         onclick="window.location='/tasks/<?= (int)$task['id'] ?>'">
 
                         <div class="card-title"><?= htmlspecialchars($task['title'], ENT_QUOTES, 'UTF-8') ?></div>

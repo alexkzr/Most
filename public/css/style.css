@@ -1921,3 +1921,7 @@ body.snippet-expanded {
     transform: scale(1.2);
 }
 
+.card-presidency {
+    box-shadow: 0 0 0 2px #f97316 !important;
+}
+
