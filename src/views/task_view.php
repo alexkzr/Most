@@ -24,7 +24,7 @@ $activeTab   = in_array($_GET['tab'] ?? '', $allowedTabs) ? $_GET['tab'] : 'comm
 ?>
 <!DOCTYPE html>
 <html lang="ru">
-<?php $pageTitle = 'Вид таски'; require __DIR__ . '/head.php'; ?>
+<?php $pageTitle = 'Вид таксы'; require __DIR__ . '/head.php'; ?>
 <body>
 
 <header class="header">

@@ -22,7 +22,7 @@ function logHistory(int $taskId, int $userId, string $action, string $oldValue =
 // ===========================
 if ($action === 'create') {
 
-    $projects      = db()->query('SELECT * FROM projects WHERE is_archived = 0 ORDER BY name')->fetchAll();
+    $projects = db()->query('SELECT * FROM projects WHERE is_archived = 0 ORDER BY sort_order, name')->fetchAll();
     $assignees     = db()->query('SELECT * FROM assignees ORDER BY name')->fetchAll();
     $departments   = db()->query('SELECT * FROM departments ORDER BY name')->fetchAll();
     $customers_all = db()->query('SELECT * FROM customers ORDER BY name')->fetchAll();
@@ -224,7 +224,7 @@ if (is_numeric($action) && $sub === 'edit') {
         exit;
     }
 
-    $projects      = db()->query('SELECT * FROM projects WHERE is_archived = 0 ORDER BY name')->fetchAll();
+    $projects = db()->query('SELECT * FROM projects WHERE is_archived = 0 ORDER BY sort_order, name')->fetchAll();
     $assignees     = db()->query('SELECT * FROM assignees ORDER BY name')->fetchAll();
     $tags          = db()->query('SELECT * FROM tags ORDER BY name')->fetchAll();
     $departments   = db()->query('SELECT * FROM departments ORDER BY name')->fetchAll();

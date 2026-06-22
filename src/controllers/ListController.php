@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../config.php';
 
 $project_id = $_GET['project'] ?? null;
 
-$projects = db()->query('SELECT * FROM projects WHERE is_archived = 0 ORDER BY name')->fetchAll();
+$projects = db()->query('SELECT * FROM projects WHERE is_archived = 0 ORDER BY sort_order, name')->fetchAll();
 
 if (!$project_id && $projects) {
     $project_id = $projects[0]['id'];
