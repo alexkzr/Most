@@ -206,7 +206,7 @@ if ($method === 'POST' && ($_POST['form'] ?? '') === 'disable_2fa') {
 }
 
 // Данные для отображения
-$projects = db()->query('SELECT * FROM projects ORDER BY is_archived ASC, created_at ASC')->fetchAll();
+$projects = db()->query('SELECT * FROM projects ORDER BY is_archived ASC, sort_order ASC, name ASC')->fetchAll();
 $tags        = db()->query('SELECT * FROM tags ORDER BY name')->fetchAll();
 $departments = db()->query('SELECT * FROM departments ORDER BY name')->fetchAll();
 $customers   = db()->query('SELECT c.*, d.name AS department_name FROM customers c JOIN departments d ON d.id = c.department_id ORDER BY d.name, c.name')->fetchAll();
