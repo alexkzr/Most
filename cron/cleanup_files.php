@@ -14,7 +14,7 @@ $stmt = db()->prepare('
     JOIN tasks t ON t.id = f.task_id
     WHERE t.is_archived = 1
       AND t.archived_at IS NOT NULL
-      AND t.archived_at < DATE_SUB(NOW(), INTERVAL 30 DAY)
+      AND t.archived_at < DATE_SUB(NOW(), INTERVAL 365 DAY)
 ');
 $stmt->execute();
 $files = $stmt->fetchAll();

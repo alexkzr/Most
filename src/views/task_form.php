@@ -190,7 +190,22 @@
                 </div>
             </div>
             <?php endif; ?>
-
+            <div class="form-group">
+                <label>Цвет карточки</label>
+                <div class="color-picker-row">
+                    <label class="color-option">
+                        <input type="radio" name="color" value="" <?= ($_POST['color'] ?? '') === '' ? 'checked' : '' ?>>
+                        <span class="color-swatch color-swatch-none">✕</span>
+                    </label>
+                    <?php foreach (['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899','#06b6d4'] as $c): ?>
+                        <label class="color-option">
+                            <input type="radio" name="color" value="<?= $c ?>"
+                                <?= ($_POST['color'] ?? '') === $c ? 'checked' : '' ?>>
+                            <span class="color-swatch" style="background:<?= $c ?>"></span>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+            </div>                            
         </div>
 
         <div class="form-actions">
