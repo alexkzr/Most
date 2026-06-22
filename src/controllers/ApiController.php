@@ -99,7 +99,16 @@ if ($uri === '/api/format') {
     }
 
     $data = json_decode($response, true);
-    $html = $data['content'][0]['text'] ?? '';
+if (empty($data['content'][0]['text'])) {
+    http_response_code(502);
+    echo json_encode([
+        'error'    => 'Empty response',
+        'http_code' => $curlCode,
+        'response' => $data,
+    ]);
+    exit;
+}
+$html = $data['content'][0]['text'];
 
     $html = preg_replace('/^```html\s*/i', '', $html);
     $html = preg_replace('/\s*```$/', '', $html);
