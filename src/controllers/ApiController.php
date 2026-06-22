@@ -77,7 +77,7 @@ if ($uri === '/api/format') {
             'anthropic-version: 2023-06-01',
         ],
         CURLOPT_POSTFIELDS     => json_encode([
-            'model'      => 'claude-sonnet-4-20250514',
+            'model'      => 'claude-sonnet-4-6',
             'max_tokens' => 4096,
             'messages'   => [
                 ['role' => 'user', 'content' => $prompt]
