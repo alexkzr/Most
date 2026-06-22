@@ -14,7 +14,7 @@
 <div class="container">
     <div class="page-header">
         <h1 class="page-title">Редактирование задачи</h1>
-        <a href="/tasks/<?= $task['id'] ?>" class="btn btn-ghost">← Назад</a>
+        <a href="/?project=<?= (int)$task['project_id'] ?>" class="btn btn-ghost">← Назад</a>
     </div>
 
     <?php if ($error): ?>

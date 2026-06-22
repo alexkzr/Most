@@ -42,7 +42,7 @@ $activeTab   = in_array($_GET['tab'] ?? '', $allowedTabs) ? $_GET['tab'] : 'comm
 <div class="container">
 
     <div class="page-header">
-        <a href="/" class="btn btn-ghost">← Доска</a>
+        <a href="/?project=<?= (int)$task['project_id'] ?>" class="btn btn-ghost">← Доска</a>
         <?php if ($task['status'] !== 'pending_archive'): ?>
             <a href="/tasks/<?= (int)$task['id'] ?>/edit" class="btn btn-ghost">Редактировать</a>
         <?php endif; ?>
