@@ -293,6 +293,7 @@ document.getElementById('ai-format-btn').addEventListener('click', async functio
 });
 
 // Вставка скрина через Ctrl+V
+// Вставка скрина через Ctrl+V
 descContent.addEventListener('paste', async function(e) {
     const items = e.clipboardData?.items;
     if (!items) return;
@@ -300,6 +301,13 @@ descContent.addEventListener('paste', async function(e) {
     for (const item of items) {
         if (item.type.startsWith('image/')) {
             e.preventDefault();
+
+            // Фиксируем место вставки СРАЗУ, до асинхронной загрузки
+            const sel = window.getSelection();
+            let savedRange = null;
+            if (sel.rangeCount) {
+                savedRange = sel.getRangeAt(0).cloneRange();
+            }
 
             const blob   = item.getAsFile();
             const reader = new FileReader();
@@ -317,22 +325,19 @@ descContent.addEventListener('paste', async function(e) {
                     const data = await res.json();
 
                     if (data.url) {
-                         console.log('Inserting img, descContent contains it before:', descContent.contains(document.activeElement));
                         const img = document.createElement('img');
                         img.src       = data.url;
                         img.className = 'desc-img';
                         img.dataset.fileId = data.id;
 
-                        const sel = window.getSelection();
-                        if (sel.rangeCount) {
-                             console.log('After insert, descContent HTML:', descContent.innerHTML.substring(0, 200));
-                            const range = sel.getRangeAt(0);
-                            range.deleteContents();
-                            range.insertNode(img);
-                            range.setStartAfter(img);
-                            range.collapse(true);
-                            sel.removeAllRanges();
-                            sel.addRange(range);
+                        if (savedRange) {
+                            savedRange.deleteContents();
+                            savedRange.insertNode(img);
+                            savedRange.setStartAfter(img);
+                            savedRange.collapse(true);
+                            const sel2 = window.getSelection();
+                            sel2.removeAllRanges();
+                            sel2.addRange(savedRange);
                         } else {
                             descContent.appendChild(img);
                         }
