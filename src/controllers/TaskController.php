@@ -47,6 +47,7 @@ if ($action === 'create') {
         $date_end      = preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['date_end']   ?? '') ? $_POST['date_end']   : null;
         $selected_tags = array_map('intval', $_POST['tags'] ?? []);
         $color = preg_match('/^#[0-9a-fA-F]{6}$/', $_POST['color'] ?? '') ? $_POST['color'] : null;
+        $temp_id = preg_match('/^[0-9a-f-]{36}$/i', $_POST['temp_id'] ?? '') ? $_POST['temp_id'] : null;
 
         if (!$title || !$project_id) {
             $error = 'Заполните название и проект';
@@ -67,12 +68,12 @@ if ($action === 'create') {
             ]);
             $taskId = db()->lastInsertId();
 
-            if ($selected_tags) {
-                $stmtTag = db()->prepare('INSERT INTO task_tags (task_id, tag_id) VALUES (?, ?)');
-                foreach ($selected_tags as $tagId) {
-                    $stmtTag->execute([$taskId, $tagId]);
-                }
+            if ($temp_id) {
+                db()->prepare('UPDATE task_files SET task_id = ?, temp_id = NULL WHERE temp_id = ?')
+                    ->execute([$taskId, $temp_id]);
             }
+
+            if ($selected_tags) {
 
             logHistory($taskId, $_SESSION['user_id'], 'Задача создана', '', $title);
 
