@@ -81,8 +81,6 @@ function csrfVerify(): void {
  * Используется перед сохранением description и перед выводом.
  */
 function sanitizeHtml(string $html): string {
-    error_log('[SANITIZE] 1 - start, len=' . strlen($html));
-
     $allowed_tags = [
         'h2', 'h3', 'p', 'br',
         'ul', 'ol', 'li',
@@ -94,34 +92,24 @@ function sanitizeHtml(string $html): string {
     if (!$html || trim($html) === '') return '';
 
     $html = strip_tags($html, '<' . implode('><', $allowed_tags) . '>');
-    error_log('[SANITIZE] 2 - after strip_tags, has_style=' . (strpos($html, 'style=') !== false ? 'YES' : 'NO'));
 
     $dom = new DOMDocument('1.0', 'UTF-8');
     libxml_use_internal_errors(true);
-    $dom->loadHTML('<?xml encoding="UTF-8"><div id="__wrap__">' . $html . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+    $dom->loadHTML(
+        '<?xml encoding="UTF-8">' . $html,
+        LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+    );
     libxml_clear_errors();
-    error_log('[SANITIZE] 3 - after loadHTML');
 
     $xpath = new DOMXPath($dom);
-    $attrNodes = $xpath->query('//@*');
-    error_log('[SANITIZE] 4 - attr count=' . ($attrNodes ? $attrNodes->length : 'NULL'));
-
-    foreach ($attrNodes as $attr) {
+    foreach ($xpath->query('//@*') as $attr) {
         $attr->ownerElement->removeAttribute($attr->nodeName);
     }
-    error_log('[SANITIZE] 5 - attrs removed');
-
-    $wrapNodes = $xpath->query('//div[@id="__wrap__"]');
-    $wrap = $wrapNodes->length > 0 ? $wrapNodes->item(0) : null;
-    error_log('[SANITIZE] 6 - wrap found=' . ($wrap ? 'YES' : 'NO'));
-
-    if (!$wrap) return htmlspecialchars($html, ENT_QUOTES, 'UTF-8');
 
     $result = '';
-    foreach ($wrap->childNodes as $child) {
-        $result .= $dom->saveHTML($child);
+    foreach ($dom->childNodes as $node) {
+        $result .= $dom->saveHTML($node);
     }
-    error_log('[SANITIZE] 7 - done, has_style=' . (strpos($result, 'style=') !== false ? 'YES' : 'NO'));
 
     return $result;
 }
