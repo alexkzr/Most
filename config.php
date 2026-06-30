@@ -87,8 +87,8 @@ function sanitizeHtml(string $html): string {
         'strong', 'em', 'code', 'pre',
         'blockquote',
         'table', 'thead', 'tbody', 'tr', 'th', 'td',
+        'img',
     ];
-
     if (!$html || trim($html) === '') return '';
 
     $html = strip_tags($html, '<' . implode('><', $allowed_tags) . '>');
@@ -100,10 +100,16 @@ function sanitizeHtml(string $html): string {
         LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
     );
     libxml_clear_errors();
-
+    $allowedAttrsByTag = [
+        'img' => ['src', 'alt', 'class'],
+    ];
     $xpath = new DOMXPath($dom);
     foreach ($xpath->query('//@*') as $attr) {
-        $attr->ownerElement->removeAttribute($attr->nodeName);
+        $tagName = $attr->ownerElement->nodeName;
+        $allowedAttrs = $allowedAttrsByTag[$tagName] ?? [];
+        if (!in_array($attr->nodeName, $allowedAttrs)) {
+            $attr->ownerElement->removeAttribute($attr->nodeName);
+        }
     }
 
     $result = '';
