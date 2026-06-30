@@ -108,6 +108,7 @@ function sanitizeHtml(string $html): string {
 
     $result = '';
     foreach ($dom->childNodes as $node) {
+        if ($node->nodeType === XML_PI_NODE) continue; // пропускаем <?xml ...
         $result .= $dom->saveHTML($node);
     }
 
