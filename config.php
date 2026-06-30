@@ -119,7 +119,7 @@ function sanitizeHtml(string $html): string {
     foreach ($wrap->childNodes as $child) {
         $result .= $dom->saveHTML($child);
     }
-    error_log('[SANITIZE] OUTPUT: ' . substr($result, 0, 300));
+error_log('[SANITIZE] HAS_STYLE: ' . (strpos($result, 'style=') !== false ? 'YES' : 'NO'));
     return $result;
 }
 
