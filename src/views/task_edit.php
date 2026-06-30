@@ -34,30 +34,28 @@
 
             <!-- Описание -->
             <div class="form-group">
-                <div class="desc-spoiler" id="desc-spoiler-edit">
+                <div class="desc-spoiler open" id="desc-spoiler-edit">
                     <button type="button" class="desc-spoiler-toggle" onclick="this.closest('.desc-spoiler').classList.toggle('open')">
                         <span class="desc-spoiler-icon">▶</span>
                         <span>Описание задачи</span>
                     </button>
                     <div class="desc-spoiler-body">
                         <div class="desc-editor">
-                            <div id="desc-input-mode">
-                                <textarea id="desc-textarea" rows="10"
-                                          placeholder="Вставьте текст или HTML из Битрикса..."></textarea>
-                                <div class="desc-actions">
-                                    <button type="button" id="ai-format-btn" class="btn btn-ghost btn-sm">
-                                        <span id="ai-btn-text">✨ Отформатировать через ИИ</span>
-                                    </button>
-                                </div>
+                            <div class="desc-toolbar">
+                                <button type="button" id="ai-format-btn" class="btn btn-ghost btn-sm">
+                                    <span id="ai-btn-text">✨ Отформатировать через ИИ</span>
+                                </button>
+                                <span class="desc-toolbar-hint">Ctrl+V для вставки скрина</span>
                             </div>
-                            <div id="desc-preview-mode" style="display:none">
-                                <div id="desc-preview" class="desc-preview"></div>
-                                <div class="desc-actions">
-                                    <button type="button" id="desc-edit-btn" class="btn btn-ghost btn-sm">✏️ Редактировать снова</button>
-                                </div>
-                            </div>
+                            <div id="desc-content"
+                                 class="desc-contenteditable"
+                                 contenteditable="true"
+                                 data-placeholder="Вставьте текст или HTML из Битрикса, или скрин через Ctrl+V..."></div>
                             <input type="hidden" name="description" id="desc-hidden"
                                    value="<?= htmlspecialchars($task['description'] ?? '') ?>">
+                            <div id="desc-upload-status" style="display:none;font-size:12px;color:var(--text-muted);margin-top:6px">
+                                ⏳ Загружаю изображение...
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -224,52 +222,65 @@
 
 <script nonce="<?= htmlspecialchars($_SERVER['CSP_NONCE'], ENT_QUOTES, 'UTF-8') ?>">
 const CSRF_TOKEN = '<?= csrfToken() ?>';
-const textarea    = document.getElementById('desc-textarea');
-const inputMode   = document.getElementById('desc-input-mode');
-const previewMode = document.getElementById('desc-preview-mode');
-const preview     = document.getElementById('desc-preview');
-const hiddenInput = document.getElementById('desc-hidden');
+const TASK_ID = <?= (int)$task['id'] ?>;
+const descContent  = document.getElementById('desc-content');
+const hiddenInput   = document.getElementById('desc-hidden');
+const uploadStatus  = document.getElementById('desc-upload-status');
 
+// Загружаем существующее описание
 const existing = hiddenInput.value.trim();
 if (existing) {
-    preview.innerHTML         = existing;
-    inputMode.style.display   = 'none';
-    previewMode.style.display = 'block';
-    document.getElementById('desc-spoiler-edit').classList.add('open');
+    descContent.innerHTML = existing;
 }
 
-document.getElementById('desc-edit-btn').addEventListener('click', function() {
-    previewMode.style.display = 'none';
-    inputMode.style.display   = 'block';
-    textarea.value = hiddenInput.value;
-});
-
+// ИИ форматирование
 document.getElementById('ai-format-btn').addEventListener('click', async function() {
-    const text = textarea.value.trim();
-    if (!text) { alert('Сначала введите текст'); return; }
+    const html = descContent.innerHTML.trim();
+    if (!html || html === '') { alert('Сначала введите текст'); return; }
 
     const btn     = this;
     const btnText = document.getElementById('ai-btn-text');
     btn.disabled  = true;
     btnText.textContent = '⏳ Форматирую...';
 
+    // Извлекаем изображения перед отправкой
+    const images = [];
+    descContent.querySelectorAll('img').forEach((img, i) => {
+        images.push({ index: i, src: img.src, alt: img.alt });
+        img.replaceWith(`__IMG_${i}__`);
+    });
+
+    const textToFormat = descContent.innerHTML;
+
+    // Восстанавливаем изображения обратно на случай ошибки
+    images.forEach(img => {
+        descContent.innerHTML = descContent.innerHTML.replace(
+            `__IMG_${img.index}__`,
+            `<img src="${img.src}" alt="${img.alt}" class="desc-img">`
+        );
+    });
+
     try {
-        const res = await fetch('/api/format', {
+        const res  = await fetch('/api/format', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ text: text, csrf_token: CSRF_TOKEN })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: textToFormat, csrf_token: CSRF_TOKEN })
         });
         const data = await res.json();
+
         if (data.html) {
             const txt = document.createElement('textarea');
             txt.innerHTML = data.html;
-            const decoded = txt.value;
-            hiddenInput.value         = decoded;
-            preview.innerHTML         = decoded;
-            inputMode.style.display   = 'none';
-            previewMode.style.display = 'block';
+            let formatted = txt.value;
+
+            images.forEach(img => {
+                formatted = formatted.replace(
+                    `__IMG_${img.index}__`,
+                    `<img src="${img.src}" alt="${img.alt}" class="desc-img">`
+                );
+            });
+
+            descContent.innerHTML = formatted;
         } else {
             alert('Ошибка форматирования');
         }
@@ -281,10 +292,66 @@ document.getElementById('ai-format-btn').addEventListener('click', async functio
     }
 });
 
-document.querySelector('form').addEventListener('submit', function() {
-    if (inputMode.style.display !== 'none') {
-        hiddenInput.value = textarea.value;
+// Вставка скрина через Ctrl+V
+descContent.addEventListener('paste', async function(e) {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (const item of items) {
+        if (item.type.startsWith('image/')) {
+            e.preventDefault();
+
+            const blob   = item.getAsFile();
+            const reader = new FileReader();
+
+            reader.onload = async function() {
+                uploadStatus.style.display = 'block';
+
+                try {
+                    const formData = new FormData();
+                    formData.append('image_data', reader.result);
+                    formData.append('task_id', TASK_ID);
+                    formData.append('csrf_token', CSRF_TOKEN);
+
+                    const res  = await fetch('/upload', { method: 'POST', body: formData });
+                    const data = await res.json();
+
+                    if (data.url) {
+                        const img = document.createElement('img');
+                        img.src       = data.url;
+                        img.className = 'desc-img';
+                        img.dataset.fileId = data.id;
+
+                        const sel = window.getSelection();
+                        if (sel.rangeCount) {
+                            const range = sel.getRangeAt(0);
+                            range.deleteContents();
+                            range.insertNode(img);
+                            range.setStartAfter(img);
+                            range.collapse(true);
+                            sel.removeAllRanges();
+                            sel.addRange(range);
+                        } else {
+                            descContent.appendChild(img);
+                        }
+                    } else {
+                        alert(data.error || 'Ошибка загрузки');
+                    }
+                } catch(e) {
+                    alert('Ошибка загрузки изображения');
+                } finally {
+                    uploadStatus.style.display = 'none';
+                }
+            };
+
+            reader.readAsDataURL(blob);
+            break;
+        }
     }
+});
+
+document.querySelector('form').addEventListener('submit', function() {
+    hiddenInput.value = descContent.innerHTML.trim();
 });
 
 function filterCustomers(deptId) {
