@@ -27,10 +27,12 @@ $maxSize = 2 * 1024 * 1024; // 2MB
 
 // ─── Загрузка файла-вложения ──────────────────────────────────────────────────
 if (isset($_FILES['file'])) {
-    $taskId = (int)($_POST['task_id'] ?? 0);
-    if (!$taskId) {
+    $taskId = (int)($_POST['task_id'] ?? 0) ?: null;
+    $tempId = trim($_POST['temp_id'] ?? '');
+
+    if (!$taskId && !preg_match('/^[0-9a-f-]{36}$/i', $tempId)) {
         http_response_code(400);
-        echo json_encode(['error' => 'task_id required']);
+        echo json_encode(['error' => 'task_id or temp_id required']);
         exit;
     }
 
@@ -72,11 +74,12 @@ if (isset($_FILES['file'])) {
 
     // Сохраняем в БД
     $stmt = db()->prepare('
-        INSERT INTO task_files (task_id, user_id, filename, original_name, file_size, mime_type)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO task_files (task_id, temp_id, user_id, filename, original_name, file_size, mime_type)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     ');
     $stmt->execute([
         $taskId,
+        $taskId ? null : $tempId,
         $_SESSION['user_id'],
         $filename,
         mb_substr($file['name'], 0, 255),
@@ -99,12 +102,13 @@ if (isset($_FILES['file'])) {
 
 // ─── Загрузка изображения из буфера (Ctrl+V) ─────────────────────────────────
 if (isset($_POST['image_data'])) {
-    $taskId    = (int)($_POST['task_id'] ?? 0);
+    $taskId    = (int)($_POST['task_id'] ?? 0) ?: null;
+    $tempId    = trim($_POST['temp_id'] ?? '');
     $imageData = $_POST['image_data'];
 
-    if (!$taskId) {
+    if (!$taskId && !preg_match('/^[0-9a-f-]{36}$/i', $tempId)) {
         http_response_code(400);
-        echo json_encode(['error' => 'task_id required']);
+        echo json_encode(['error' => 'task_id or temp_id required']);
         exit;
     }
 
@@ -132,11 +136,12 @@ if (isset($_POST['image_data'])) {
     file_put_contents($destPath, $imageBody);
 
     $stmt = db()->prepare('
-        INSERT INTO task_files (task_id, user_id, filename, original_name, file_size, mime_type)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO task_files (task_id, temp_id, user_id, filename, original_name, file_size, mime_type)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     ');
     $stmt->execute([
         $taskId,
+        $taskId ? null : $tempId,
         $_SESSION['user_id'],
         $filename,
         'screenshot_' . date('Y-m-d_H-i-s') . '.' . $ext,
