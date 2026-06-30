@@ -317,6 +317,7 @@ descContent.addEventListener('paste', async function(e) {
                     const data = await res.json();
 
                     if (data.url) {
+                         console.log('Inserting img, descContent contains it before:', descContent.contains(document.activeElement));
                         const img = document.createElement('img');
                         img.src       = data.url;
                         img.className = 'desc-img';
@@ -324,6 +325,7 @@ descContent.addEventListener('paste', async function(e) {
 
                         const sel = window.getSelection();
                         if (sel.rangeCount) {
+                             console.log('After insert, descContent HTML:', descContent.innerHTML.substring(0, 200));
                             const range = sel.getRangeAt(0);
                             range.deleteContents();
                             range.insertNode(img);
