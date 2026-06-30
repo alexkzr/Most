@@ -111,8 +111,9 @@ function sanitizeHtml(string $html): string {
         $attr->ownerElement->removeAttribute($attr->nodeName);
     }
 
-    // Извлекаем только содержимое нашего обёртки
-    $wrap = $dom->getElementById('__wrap__');
+    // Извлекаем только содержимое нашего обёртки через XPath (надёжнее getElementById)
+    $wrapNodes = $xpath->query('//div[@id="__wrap__"]');
+    $wrap = $wrapNodes->length > 0 ? $wrapNodes->item(0) : null;
     if (!$wrap) return htmlspecialchars($html, ENT_QUOTES, 'UTF-8');
 
     $result = '';
