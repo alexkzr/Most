@@ -81,6 +81,7 @@ function csrfVerify(): void {
  * Используется перед сохранением description и перед выводом.
  */
 function sanitizeHtml(string $html): string {
+    error_log('[SANITIZE] INPUT: ' . substr($html, 0, 300));
     // Разрешённые теги и атрибуты (whitelist)
     $allowed_tags = [
         'h2', 'h3', 'p', 'br',
@@ -118,7 +119,7 @@ function sanitizeHtml(string $html): string {
     foreach ($wrap->childNodes as $child) {
         $result .= $dom->saveHTML($child);
     }
-
+    error_log('[SANITIZE] OUTPUT: ' . substr($result, 0, 300));
     return $result;
 }
 
