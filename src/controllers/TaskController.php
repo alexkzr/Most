@@ -74,13 +74,18 @@ if ($action === 'create') {
             }
 
             if ($selected_tags) {
+                $stmtTag = db()->prepare('INSERT INTO task_tags (task_id, tag_id) VALUES (?, ?)');
+                foreach ($selected_tags as $tagId) {
+                    $stmtTag->execute([$taskId, $tagId]);
+                }
+            }
 
             logHistory($taskId, $_SESSION['user_id'], 'Задача создана', '', $title);
 
             header('Location: /tasks/' . $taskId);
             exit;
-        }
-    }
+                    }
+                }
 
     require __DIR__ . '/../views/task_form.php';
     exit;
