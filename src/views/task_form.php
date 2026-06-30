@@ -212,10 +212,12 @@
             <a href="/" class="btn btn-ghost">Отмена</a>
             <button type="submit" class="btn btn-primary">Создать задачу</button>
         </div>
+        <input type="hidden" name="temp_id" value="">
     </form>
 </div>
 
 <script nonce="<?= htmlspecialchars($_SERVER['CSP_NONCE'], ENT_QUOTES, 'UTF-8') ?>">
+const TEMP_ID = crypto.randomUUID();
 const CSRF_TOKEN   = '<?= csrfToken() ?>';
 const descContent  = document.getElementById('desc-content');
 const hiddenInput  = document.getElementById('desc-hidden');
@@ -230,6 +232,7 @@ if (existing) {
 // Перед сабмитом — берём HTML из contenteditable
 document.getElementById('task-form').addEventListener('submit', function() {
     hiddenInput.value = descContent.innerHTML.trim();
+    document.querySelector('input[name="temp_id"]').value = TEMP_ID;
 });
 
 // ИИ форматирование
@@ -310,7 +313,7 @@ descContent.addEventListener('paste', async function(e) {
                 try {
                     const formData = new FormData();
                     formData.append('image_data', reader.result);
-                    formData.append('task_id', 0); // 0 — задача ещё не создана
+                    formData.append('temp_id', TEMP_ID); // 0 — задача ещё не создана
                     formData.append('csrf_token', CSRF_TOKEN);
 
                     const res  = await fetch('/upload', { method: 'POST', body: formData });
