@@ -51,6 +51,7 @@ foreach ($emails as $msgId) {
     // Очищаем тело от HTML если нужно
     $bodyClean = sanitizeHtml(trim($body));
     $attachments = getEmailAttachments($imap, $msgId);
+    $inlineImages = getEmailInlineImages($imap, $msgId);
     $savedFiles = [];
 
     foreach ($attachments as $attachment) {
