@@ -234,7 +234,7 @@ function getEmailInlineImages($imap, int $msgId): array {
         $type        = $part->type ?? 0;
 
         // Ищем inline картинки с Content-ID
-        if ($type !== 5) continue; // 5 = image
+        if ($type !== 6) continue; // 5 = image
         if (empty($part->id)) continue;
 
         $cid  = trim($part->id, '<>');
