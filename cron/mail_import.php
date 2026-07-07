@@ -38,6 +38,8 @@ if (!$emails) {
 $created = 0;
 
 foreach ($emails as $msgId) {
+    $structure = imap_fetchstructure($imap, $msgId);
+    error_log('[MAIL DEBUG] ' . print_r($structure, true));
     $header  = imap_headerinfo($imap, $msgId);
     $subject = isset($header->subject) ? imap_utf8($header->subject) : '(без темы)';
     $from    = isset($header->from[0]) ? imap_utf8($header->from[0]->mailbox . '@' . $header->from[0]->host) : '';
