@@ -52,6 +52,14 @@ foreach ($emails as $msgId) {
     $bodyClean = sanitizeHtml(trim($body));
     $attachments = getEmailAttachments($imap, $msgId);
     $inlineImages = getEmailInlineImages($imap, $msgId);
+    $destDir = __DIR__ . '/../public/uploads/tasks/';
+
+    foreach ($inlineImages as $cid => $img) {
+        $ext      = strtolower($img['subtype']);
+        $filename = bin2hex(random_bytes(16)) . '.' . $ext;
+        file_put_contents($destDir . $filename, $img['data']);
+        $body = str_replace('cid:' . $cid, '/public/uploads/tasks/' . $filename, $body);
+    }
     $savedFiles = [];
 
     foreach ($attachments as $attachment) {
