@@ -48,7 +48,24 @@ foreach ($emails as $msgId) {
 
     // Очищаем тело от HTML если нужно
     $bodyClean = sanitizeHtml(trim($body));
+    $attachments = getEmailAttachments($imap, $msgId);
+    $savedFiles = [];
 
+    foreach ($attachments as $attachment) {
+        $ext      = pathinfo($attachment['filename'], PATHINFO_EXTENSION);
+        $filename = bin2hex(random_bytes(16)) . '.' . $ext;
+        $destDir  = __DIR__ . '/../public/uploads/tasks/';
+        $destPath = $destDir . $filename;
+
+        file_put_contents($destPath, $attachment['data']);
+
+        $savedFiles[] = [
+            'filename'      => $filename,
+            'original_name' => $attachment['filename'],
+            'size'          => strlen($attachment['data']),
+            'mime'          => $attachment['mime'],
+        ];
+    }
     // Создаём задачу
     try {
         $stmt = db()->prepare('
