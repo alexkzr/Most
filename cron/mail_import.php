@@ -81,7 +81,21 @@ foreach ($emails as $msgId) {
         ]);
 
         $taskId = db()->lastInsertId();
-
+        if ($savedFiles) {
+            $stmtFile = db()->prepare('
+                INSERT INTO task_files (task_id, user_id, filename, original_name, file_size, mime_type)
+                VALUES (?, 1, ?, ?, ?, ?)
+            ');
+            foreach ($savedFiles as $f) {
+                $stmtFile->execute([
+                    $taskId,
+                    $f['filename'],
+                    $f['original_name'],
+                    $f['size'],
+                    $f['mime'],
+                ]);
+            }
+        }
         // Логируем создание
         $logStmt = db()->prepare('
             INSERT INTO history (task_id, user_id, action, old_value, new_value)
