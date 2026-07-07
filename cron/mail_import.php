@@ -172,6 +172,7 @@ function decodeEmailBody(string $body, int $encoding): string {
     }
     
 }
+
 function getEmailAttachments($imap, int $msgId): array {
     $attachments = [];
     $structure = imap_fetchstructure($imap, $msgId);
@@ -217,4 +218,34 @@ function getEmailAttachments($imap, int $msgId): array {
     }
 
     return $attachments;
+}
+
+function getEmailInlineImages($imap, int $msgId): array {
+    $images = [];
+    $structure = imap_fetchstructure($imap, $msgId);
+
+    if (!isset($structure->parts)) {
+        return $images;
+    }
+
+    foreach ($structure->parts as $i => $part) {
+        $disposition = strtolower($part->disposition ?? '');
+        $subtype     = strtolower($part->subtype ?? '');
+        $type        = $part->type ?? 0;
+
+        // Ищем inline картинки с Content-ID
+        if ($type !== 5) continue; // 5 = image
+        if (empty($part->id)) continue;
+
+        $cid  = trim($part->id, '<>');
+        $data = imap_fetchbody($imap, $msgId, (string)($i + 1));
+        $data = decodeEmailBody($data, $part->encoding);
+
+        $images[$cid] = [
+            'data'    => $data,
+            'subtype' => $subtype,
+        ];
+    }
+
+    return $images;
 }
