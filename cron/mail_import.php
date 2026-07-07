@@ -232,24 +232,35 @@ function getEmailAttachments($imap, int $msgId): array {
 }
 
 function getEmailInlineImages($imap, int $msgId): array {
-    $images = [];
     $structure = imap_fetchstructure($imap, $msgId);
 
     if (!isset($structure->parts)) {
-        return $images;
+        return [];
     }
 
-    foreach ($structure->parts as $i => $part) {
+    return collectInlineParts($imap, $msgId, $structure->parts, '');
+}
+
+function collectInlineParts($imap, int $msgId, array $parts, string $prefix): array {
+    $images = [];
+
+    foreach ($parts as $i => $part) {
+        $partNum     = $prefix ? $prefix . '.' . ($i + 1) : (string)($i + 1);
+        $type        = $part->type ?? 0;
         $disposition = strtolower($part->disposition ?? '');
         $subtype     = strtolower($part->subtype ?? '');
-        $type        = $part->type ?? 0;
 
-        // Ищем inline картинки с Content-ID
-        if ($type !== 5) continue; // 5 = image
+        if ($type === 1 && isset($part->parts)) {
+            $images = array_merge($images, collectInlineParts($imap, $msgId, $part->parts, $partNum));
+            continue;
+        }
+
+        if ($type !== 5) continue;
         if (empty($part->id)) continue;
+        if ($disposition !== 'inline') continue;
 
         $cid  = trim($part->id, '<>');
-        $data = imap_fetchbody($imap, $msgId, (string)($i + 1));
+        $data = imap_fetchbody($imap, $msgId, $partNum);
         $data = decodeEmailBody($data, $part->encoding);
 
         $images[$cid] = [
