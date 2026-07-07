@@ -124,4 +124,51 @@ function decodeEmailBody(string $body, int $encoding): string {
         case 4: return quoted_printable_decode($body); // QP
         default: return $body;
     }
+    
+}
+function getEmailAttachments($imap, int $msgId): array {
+    $attachments = [];
+    $structure = imap_fetchstructure($imap, $msgId);
+
+    if (!isset($structure->parts)) {
+        return $attachments;
+    }
+
+    foreach ($structure->parts as $i => $part) {
+        $disposition = strtolower($part->disposition ?? '');
+        $subtype = strtolower($part->subtype ?? '');
+
+        if ($disposition !== 'attachment' && $disposition !== 'inline') {
+            continue;
+        }
+
+        // Имя файла
+        $filename = '';
+        if (!empty($part->dparameters)) {
+            foreach ($part->dparameters as $param) {
+                if (strtolower($param->attribute) === 'filename') {
+                    $filename = imap_utf8($param->value);
+                }
+            }
+        }
+        if (!$filename && !empty($part->parameters)) {
+            foreach ($part->parameters as $param) {
+                if (strtolower($param->attribute) === 'name') {
+                    $filename = imap_utf8($param->value);
+                }
+            }
+        }
+        if (!$filename) continue;
+
+        $data = imap_fetchbody($imap, $msgId, (string)($i + 1));
+        $data = decodeEmailBody($data, $part->encoding);
+
+        $attachments[] = [
+            'filename' => $filename,
+            'data'     => $data,
+            'mime'     => strtolower($part->type . '/' . $subtype),
+        ];
+    }
+
+    return $attachments;
 }
