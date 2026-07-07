@@ -47,8 +47,7 @@ foreach ($emails as $msgId) {
     $body = getEmailBody($imap, $msgId);
 
     // Очищаем тело от HTML если нужно
-    $bodyClean = strip_tags($body);
-    $bodyClean = trim($bodyClean);
+    $bodyClean = sanitizeHtml(trim($body));
 
     // Создаём задачу
     try {
