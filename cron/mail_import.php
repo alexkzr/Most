@@ -122,31 +122,46 @@ error_log('[MAIL IMPORT] Готово. Создано задач: ' . $created);
 function getEmailBody($imap, int $msgId): string {
     $structure = imap_fetchstructure($imap, $msgId);
 
-    // Простое письмо без вложений
     if (!isset($structure->parts)) {
         $body = imap_fetchbody($imap, $msgId, '1');
         return decodeEmailBody($body, $structure->encoding);
     }
 
-    // Multipart — ищем text/plain или text/html
-    foreach ($structure->parts as $i => $part) {
-        $subtype = strtolower($part->subtype ?? '');
-        if ($subtype === 'plain') {
-            $body = imap_fetchbody($imap, $msgId, (string)($i + 1));
-            return decodeEmailBody($body, $part->encoding);
+    return findBodyPart($imap, $msgId, $structure->parts, '');
+}
+
+function findBodyPart($imap, int $msgId, array $parts, string $prefix): string {
+    $html = '';
+    $plain = '';
+
+    foreach ($parts as $i => $part) {
+        $partNum  = $prefix ? $prefix . '.' . ($i + 1) : (string)($i + 1);
+        $subtype  = strtolower($part->subtype ?? '');
+        $type     = $part->type ?? 0;
+        $disposition = strtolower($part->disposition ?? '');
+
+        // Рекурсивно ныряем в multipart
+        if ($type === 1 && isset($part->parts)) {
+            $result = findBodyPart($imap, $msgId, $part->parts, $partNum);
+            if ($result) return $result;
+            continue;
+        }
+
+        // Пропускаем вложения
+        if ($disposition === 'attachment') continue;
+
+        if ($type === 0 && $subtype === 'plain' && !$plain) {
+            $body = imap_fetchbody($imap, $msgId, $partNum);
+            $plain = decodeEmailBody($body, $part->encoding);
+        }
+
+        if ($type === 0 && $subtype === 'html' && !$html) {
+            $body = imap_fetchbody($imap, $msgId, $partNum);
+            $html = decodeEmailBody($body, $part->encoding);
         }
     }
 
-    // Если plain не нашли — берём html
-    foreach ($structure->parts as $i => $part) {
-        $subtype = strtolower($part->subtype ?? '');
-        if ($subtype === 'html') {
-            $body = imap_fetchbody($imap, $msgId, (string)($i + 1));
-            return decodeEmailBody($body, $part->encoding);
-        }
-    }
-
-    return '';
+    return $html ?: $plain;
 }
 
 function decodeEmailBody(string $body, int $encoding): string {
