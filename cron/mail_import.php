@@ -58,7 +58,7 @@ foreach ($emails as $msgId) {
             VALUES (?, ?, ?, "incoming", "medium", 1, ?)
         ');
         $stmt->execute([
-            mb_substr($subject, 0, 500),
+            mb_substr('Письмо - ' . $subject, 0, 500),
             $bodyClean,
             $mailProject,
             mb_substr($fromName ?: $from, 0, 255),
