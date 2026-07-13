@@ -44,6 +44,8 @@ foreach ($emails as $msgId) {
     $subject = isset($header->subject) ? imap_utf8($header->subject) : '(без темы)';
     $from    = isset($header->from[0]) ? imap_utf8($header->from[0]->mailbox . '@' . $header->from[0]->host) : '';
     $fromName = isset($header->from[0]->personal) ? imap_utf8($header->from[0]->personal) : $from;
+    $inlineImages = getEmailInlineImages($imap, $msgId);
+    var_dump(array_keys($inlineImages));
 
     // Получаем тело письма
     $body = getEmailBody($imap, $msgId);
