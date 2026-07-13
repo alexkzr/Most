@@ -45,13 +45,12 @@ foreach ($emails as $msgId) {
     $from    = isset($header->from[0]) ? imap_utf8($header->from[0]->mailbox . '@' . $header->from[0]->host) : '';
     $fromName = isset($header->from[0]->personal) ? imap_utf8($header->from[0]->personal) : $from;
     $inlineImages = getEmailInlineImages($imap, $msgId);
-    var_dump(array_keys($inlineImages));
+
 
     // Получаем тело письма
     $body = getEmailBody($imap, $msgId);
 
     // Очищаем тело от HTML если нужно
-    $bodyClean = sanitizeHtml(trim($body));
     $attachments = getEmailAttachments($imap, $msgId);
     $inlineImages = getEmailInlineImages($imap, $msgId);
     $destDir = __DIR__ . '/../public/uploads/tasks/';
@@ -62,6 +61,8 @@ foreach ($emails as $msgId) {
         file_put_contents($destDir . $filename, $img['data']);
         $body = str_replace('cid:' . $cid, '/public/uploads/tasks/' . $filename, $body);
     }
+
+    $bodyClean = sanitizeHtml(trim($body));
     $savedFiles = [];
 
     foreach ($attachments as $attachment) {
