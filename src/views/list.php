@@ -33,6 +33,9 @@
             <a href="/?view=list&project=<?= $project_id ?>" class="view-btn active" title="Список">☰</a>
         </div>
         <a href="/tasks/create" class="btn btn-primary">+ Задача</a>
+        <?php if ($project_id): ?>
+            <a href="/?view=list&amp;project=<?= (int)$project_id ?>&amp;export=csv" class="btn btn-ghost" title="Скачать активные задачи выбранного проекта">Скачать CSV</a>
+        <?php endif; ?>
         <a href="/archive" class="btn btn-ghost">Архив</a>
         <a href="/settings" class="btn btn-ghost">Настройки</a>
         <span class="header-user"><?= htmlspecialchars($_SESSION['user_name'], ENT_QUOTES, 'UTF-8') ?></span>
