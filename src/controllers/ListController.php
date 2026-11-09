@@ -69,44 +69,8 @@ if ($project_id) {
 
 // Export uses the same project and active task selection as the list.
 if (($_GET['export'] ?? '') === 'csv') {
-    header('Content-Type: text/csv; charset=UTF-8');
-    header('Content-Disposition: attachment; filename="most-project-' . (int)$project_id . '-' . date('Y-m-d') . '.csv"');
-    header('Cache-Control: no-store');
-
-    $output = fopen('php://output', 'w');
-    fwrite($output, "\xEF\xBB\xBF"); // UTF-8 BOM for Excel.
-
-    // Neutralize spreadsheet formulas in user-provided text.
-    $writeRow = static function (array $row) use ($output): void {
-        $row = array_map(static function ($value): string {
-            $value = (string)($value ?? '');
-            if (preg_match('/^(?:[\t\r\n]|\s*[=+@-])/u', $value)) {
-                $value = "'" . $value;
-            }
-            return $value;
-        }, $row);
-        fputcsv($output, $row, ';', '"', '');
-    };
-
-    $writeRow(['ID', 'Задача', 'Проект', 'Статус', 'Отдел', 'Заказчик',
-        'Исполнитель', 'Тип работ', 'Приоритет', 'Сложность', 'Оценка, ч',
-        'Начало', 'Завершение', 'Президентство', 'Создана', 'Обновлена']);
-
-    foreach ($tasks as $task) {
-        $writeRow([
-            $task['id'], $task['title'], $task['project_name'],
-            $statusLabels[$task['status']] ?? $task['status'],
-            $task['department_name'], $task['customer_name'], $task['assignee_name'],
-            $workTypeLabels[$task['work_type'] ?? ''] ?? '',
-            $priorityLabels[$task['priority']] ?? $task['priority'],
-            $task['complexity'], $task['estimated_hours'],
-            $task['date_start'], $task['date_end'],
-            $task['is_presidency'] ? 'Да' : 'Нет',
-            $task['created_at'], $task['updated_at'],
-        ]);
-    }
-    fclose($output);
-    exit;
+    require_once __DIR__ . '/../lib/TaskCsv.php';
+    exportTasksCsv($tasks, 'most-project-' . (int)$project_id . '-' . date('Y-m-d') . '.csv');
 }
 
 require __DIR__ . '/../views/list.php';

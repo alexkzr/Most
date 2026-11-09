@@ -27,6 +27,8 @@
     <div class="page-header">
         <h1 class="page-title">Архив <span style="color:var(--text-muted);font-size:16px">(<?= count($tasks) ?>)</span></h1>
 
+        <a href="/archive?<?= htmlspecialchars(http_build_query(['project' => $project_id, 'search' => $search, 'export' => 'csv']), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-ghost">Скачать CSV</a>
+
         <!-- Поиск -->
         <form method="GET" action="/archive" style="display:flex;gap:8px">
             <?php if ($project_id): ?>
