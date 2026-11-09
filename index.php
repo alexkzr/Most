@@ -56,6 +56,9 @@ match(true) {
     $uri === '/login/2fa' => require __DIR__ . '/src/controllers/TwoFactorController.php',
     $uri === '/logout' => require __DIR__ . '/src/controllers/AuthController.php',
 
+    // Полный CSV всех проектов, включая архив.
+    $uri === '/export/all' => require __DIR__ . '/src/controllers/ExportController.php',
+
     // Главная — канбан или список
     ($uri === '' || $uri === '/') && ($_GET['view'] ?? 'board') === 'board' => require __DIR__ . '/src/controllers/BoardController.php',
     ($uri === '' || $uri === '/') && ($_GET['view'] ?? '') === 'list'       => require __DIR__ . '/src/controllers/ListController.php',

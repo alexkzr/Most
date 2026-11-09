@@ -18,6 +18,7 @@
     </div>
     <div class="header-nav">
         <a href="/" class="btn btn-ghost">← Доска</a>
+        <a href="/export/all" class="btn btn-ghost" title="Все задачи всех проектов, включая архив">Полный экспорт</a>
         <span class="header-user"><?= htmlspecialchars($_SESSION['user_name']) ?></span>
         <a href="/logout" class="btn btn-ghost">Выйти</a>
     </div>

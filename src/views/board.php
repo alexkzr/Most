@@ -46,6 +46,7 @@ $priorityLabels = [
     </div>
     <div class="header-nav">
         <a href="/tasks/create" class="btn btn-primary">Создать</a>
+        <a href="/export/all" class="btn btn-ghost" title="Все задачи всех проектов, включая архив">Полный экспорт</a>
         <a href="/archive" class="btn btn-ghost">Архив</a>
         <a href="/settings" class="btn btn-ghost">Настройки</a>
         <span class="header-user"><?= htmlspecialchars($_SESSION['user_name'], ENT_QUOTES, 'UTF-8') ?></span>

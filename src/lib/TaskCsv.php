@@ -1,7 +1,7 @@
 <?php
 
 /** Export task rows without mixing planned dates with lifecycle timestamps. */
-function exportTasksCsv(array $tasks, string $filename, bool $archive = false): void {
+function exportTasksCsv(iterable $tasks, string $filename, bool $archive = false, bool $full = false): void {
     $statusLabels = [
         'incoming'        => 'Входящие',
         'new'             => 'Очередь',
@@ -48,13 +48,16 @@ function exportTasksCsv(array $tasks, string $filename, bool $archive = false): 
     if ($archive) {
         $headers = array_merge($headers, ['Фактическое завершение', 'Дата архивирования', 'Причина архивирования']);
     }
+    if ($full) {
+        $headers[] = 'В архиве';
+    }
     $writeRow($headers);
 
     foreach ($tasks as $task) {
         $row = [
             $task['id'], $task['title'], $task['project_name'],
             $statusLabels[$task['status']] ?? $task['status'],
-            $task['department_name'], $task['customer_name'], $task['assignee_name'],
+            $task['department_name'], $task['customer_name'] ?: ($task['customer'] ?? ''), $task['assignee_name'],
             $workTypeLabels[$task['work_type'] ?? ''] ?? '',
             $priorityLabels[$task['priority']] ?? $task['priority'],
             $task['complexity'], $task['estimated_hours'],
@@ -70,6 +73,9 @@ function exportTasksCsv(array $tasks, string $filename, bool $archive = false): 
             $row[] = ($task['archive_reason'] ?? '') === 'other'
                 ? ($task['archive_reason_custom'] ?? 'Другое')
                 : ($reasons[$task['archive_reason'] ?? ''] ?? '');
+        }
+        if ($full) {
+            $row[] = $task['is_archived'] ? 'Да' : 'Нет';
         }
         $writeRow($row);
     }
