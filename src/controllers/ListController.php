@@ -11,7 +11,7 @@ if (!$project_id && $projects) {
 }
 
 $statusLabels = [
-    'incoming'        => 'Входящие',
+    'incoming'        => 'Почта',
     'new'             => 'Очередь',
     'in_progress'     => 'В работе',
     'testing'         => 'Тестирование',

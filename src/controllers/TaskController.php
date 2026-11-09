@@ -336,7 +336,7 @@ if (is_numeric($action) && $sub === 'move' && $method === 'POST') {
 
     if ($task) {
         $statusLabels = [
-            'incoming'    => 'Входящие',
+            'incoming'    => 'Почта',
             'new'         => 'Очередь',
             'in_progress' => 'В работе',
             'testing'     => 'Тестирование',

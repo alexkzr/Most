@@ -3,7 +3,7 @@
 /** Export task rows without mixing planned dates with lifecycle timestamps. */
 function exportTasksCsv(iterable $tasks, string $filename, bool $archive = false, bool $full = false): void {
     $statusLabels = [
-        'incoming'        => 'Входящие',
+        'incoming'        => 'Почта',
         'new'             => 'Очередь',
         'in_progress'     => 'В работе',
         'testing'         => 'Тестирование',
